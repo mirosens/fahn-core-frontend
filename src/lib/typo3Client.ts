@@ -14,27 +14,58 @@ import { zPageResponse, type PageResponse } from "@/types/page";
 import type { ZodType } from "zod";
 
 export const typo3Client = {
-  async getPage(slug: string): Promise<PageResponse> {
-    const data = await t3Fetch<unknown>(`/page/${encodeURIComponent(slug)}`);
+  async getPage(
+    slug: string,
+    options?: { cache?: RequestCache; next?: { tags?: string[] } }
+  ): Promise<PageResponse> {
+    const data = await t3Fetch<unknown>(`/page/${encodeURIComponent(slug)}`, {
+      cache: options?.cache ?? "force-cache",
+      next: {
+        tags: options?.next?.tags ?? [`page:${slug}`, "navigation:main"],
+      },
+    });
     return parseWithSchema(zPageResponse, data, "PAGE");
   },
 
-  async getNavigation(): Promise<NavigationResponse> {
-    const data = await t3Fetch<unknown>("/navigation");
+  async getNavigation(options?: {
+    cache?: RequestCache;
+    next?: { tags?: string[] };
+  }): Promise<NavigationResponse> {
+    const data = await t3Fetch<unknown>("/navigation", {
+      cache: options?.cache ?? "force-cache",
+      next: {
+        tags: options?.next?.tags ?? ["navigation:main"],
+      },
+    });
     return parseWithSchema(zNavigationResponse, data, "NAVIGATION");
   },
 
-  async getFahndungen(params?: URLSearchParams): Promise<FahndungenResponse> {
+  async getFahndungen(
+    params?: URLSearchParams,
+    options?: { cache?: RequestCache; next?: { tags?: string[] } }
+  ): Promise<FahndungenResponse> {
     const path = params ? `/fahndungen?${params.toString()}` : "/fahndungen";
-    const data = await t3Fetch<unknown>(path);
+    const data = await t3Fetch<unknown>(path, {
+      cache: options?.cache ?? "force-cache",
+      next: {
+        tags: options?.next?.tags ?? ["fahndungen:list"],
+      },
+    });
     return parseWithSchema(zFahndungenResponse, data, "FAHNDUNGEN_LIST");
   },
 
   async getFahndungById(
-    id: string
+    id: string,
+    options?: { cache?: RequestCache; next?: { tags?: string[] } }
   ): Promise<FahndungenResponse["items"][number]> {
     const data = await t3Fetch<unknown>(
-      `/fahndungen/${encodeURIComponent(id)}`
+      `/fahndungen/${encodeURIComponent(id)}`,
+      {
+        cache: options?.cache ?? "force-cache",
+        next: {
+          tags: options?.next?.tags ?? [`fahndung:${id}`, "fahndungen:list"],
+        },
+      }
     );
     const parsed = parseWithSchema(
       zFahndungenResponse,
@@ -47,6 +78,7 @@ export const typo3Client = {
       throw new ApiError({
         message: `Fahndung ${id} not found in response`,
         code: "FAHNDUNG_NOT_FOUND",
+        status: 404,
       });
     }
 
@@ -55,7 +87,10 @@ export const typo3Client = {
 
   async getFormDefinition(identifier: string) {
     const data = await t3Fetch<unknown>(
-      `/forms/${encodeURIComponent(identifier)}`
+      `/forms/${encodeURIComponent(identifier)}`,
+      {
+        cache: "no-store", // Formulare sind dynamisch
+      }
     );
     // Zod-Schema für Formulare kann in späterer Phase ergänzt werden
     return data;

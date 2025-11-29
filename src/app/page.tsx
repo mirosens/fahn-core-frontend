@@ -1,66 +1,122 @@
-import Image from "next/image";
+// app/page.tsx - Startseite mit ISR
+import { typo3Client } from "@/lib/typo3Client";
+import { ApiError } from "@/lib/api-error";
+import Link from "next/link";
 
-export default function Home() {
+// ISR: Revalidation alle 120 Sekunden
+export const revalidate = 120;
+
+export default async function HomePage() {
+  // Aktuelle Fahndungen für Startseite (limitierte Anzahl)
+  let fahndungen;
+  let hasError = false;
+  let errorMessage: string | null = null;
+
+  try {
+    fahndungen = await typo3Client.getFahndungen(
+      new URLSearchParams({ limit: "3" }),
+      {
+        cache: "force-cache",
+        next: { tags: ["fahndungen:list"] },
+      }
+    );
+  } catch (error) {
+    // Fehlerbehandlung: Zeige benutzerfreundliche Meldung
+    hasError = true;
+    if (error instanceof ApiError) {
+      if (error.code === "T3_NETWORK_ERROR" || error.code === "T3_TIMEOUT") {
+        errorMessage =
+          "Die Verbindung zum Fahndungsportal konnte nicht hergestellt werden. Bitte versuchen Sie es später erneut.";
+      } else {
+        errorMessage =
+          "Die Fahndungen konnten nicht geladen werden. Bitte versuchen Sie es später erneut.";
+      }
+    } else {
+      errorMessage =
+        "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+    }
+    console.error("Fehler beim Laden der Fahndungen:", error);
+    fahndungen = { items: [] };
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-              style={{ width: "auto", height: "auto" }}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="container mx-auto px-4 py-12">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-6 text-4xl font-bold">
+          Die Polizei bittet um Ihre Mithilfe
+        </h1>
+        <p className="mb-8 text-lg text-muted-foreground">
+          Das Fahndungsportal der Polizei Baden-Württemberg unterstützt die
+          Öffentlichkeit bei der Aufklärung von Straftaten. Bitte melden Sie
+          sich, wenn Sie Hinweise zu den hier veröffentlichten Fahndungen haben.
+        </p>
+
+        {hasError && errorMessage && (
+          <div className="mb-8 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+            <p className="text-destructive">{errorMessage}</p>
+          </div>
+        )}
+
+        {fahndungen.items.length > 0 && (
+          <section className="mb-12">
+            <h2 className="mb-4 text-2xl font-semibold">Aktuelle Fahndungen</h2>
+            <div className="space-y-4">
+              {fahndungen.items.map((item) => (
+                <article
+                  key={item.id}
+                  className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <h3 className="mb-2 text-xl font-semibold">
+                    <Link
+                      href={`/fahndungen/${item.id}`}
+                      className="hover:underline"
+                    >
+                      {item.title}
+                    </Link>
+                  </h3>
+                  {item.description && (
+                    <p className="mb-4 text-muted-foreground line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
+                  <Link
+                    href={`/fahndungen/${item.id}`}
+                    className="text-primary hover:underline"
+                  >
+                    Details anzeigen →
+                  </Link>
+                </article>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link
+                href="/fahndungen"
+                className="inline-block rounded-md bg-primary px-6 py-3 text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Alle Fahndungen anzeigen
+              </Link>
+            </div>
+          </section>
+        )}
+
+        <section className="rounded-lg border bg-muted/50 p-6">
+          <h2 className="mb-4 text-xl font-semibold">Wichtige Hinweise</h2>
+          <ul className="space-y-2 text-muted-foreground">
+            <li>
+              • Bei akuten Notfällen wählen Sie bitte sofort den{" "}
+              <strong>Polizeinotruf 110</strong>
+            </li>
+            <li>
+              • Hinweise können Sie über das Kontaktformular auf den
+              Detailseiten der Fahndungen übermitteln
+            </li>
+            <li>
+              • Alle Informationen werden vertraulich behandelt und nur für
+              polizeiliche Zwecke verwendet
+            </li>
+          </ul>
+        </section>
+      </div>
     </div>
   );
 }
