@@ -10,9 +10,15 @@ import {
   zFahndungenResponse,
   type FahndungenResponse,
 } from "@/types/fahndungen";
+import { zPageResponse, type PageResponse } from "@/types/page";
 import type { ZodType } from "zod";
 
 export const typo3Client = {
+  async getPage(slug: string): Promise<PageResponse> {
+    const data = await t3Fetch<unknown>(`/page/${encodeURIComponent(slug)}`);
+    return parseWithSchema(zPageResponse, data, "PAGE");
+  },
+
   async getNavigation(): Promise<NavigationResponse> {
     const data = await t3Fetch<unknown>("/navigation");
     return parseWithSchema(zNavigationResponse, data, "NAVIGATION");
