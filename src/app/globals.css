@@ -81,6 +81,7 @@
   --polizei-error: #b91c1c;
 
   /* Typografie */
+  /* System-Fonts als Fallback (Geist wird über @theme inline referenziert) */
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
@@ -171,8 +172,9 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  /* Gezielte Border-Color für Form-Elemente */
+  :where(hr, input, textarea, select, fieldset) {
+    border-color: var(--color-border);
   }
 
   body {
