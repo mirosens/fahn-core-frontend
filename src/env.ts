@@ -3,7 +3,8 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    TYPO3_BASE_URL: z.string().url(),
+    T3_API_BASE_URL: z.string().url(),
+    TYPO3_BASE_URL: z.string().url().optional(),
     TYPO3_API_SECRET: z.string().min(1).optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
