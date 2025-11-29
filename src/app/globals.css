@@ -4,6 +4,21 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Polizei-CI Design Tokens */
+  --color-primary: var(--polizei-primary);
+  --color-primary-soft: var(--polizei-primary-soft);
+  --color-primary-contrast: var(--polizei-primary-contrast);
+  --color-warn: var(--polizei-warn);
+  --color-warn-contrast: var(--polizei-warn-contrast);
+  --color-success: var(--polizei-success);
+  --color-error: var(--polizei-error);
+  --color-bg: var(--polizei-bg);
+  --color-bg-elevated: var(--polizei-bg-elevated);
+  --color-fg: var(--polizei-fg);
+  --color-border-subtle: var(--polizei-border-subtle);
+  --color-surface: var(--polizei-bg-elevated);
+
+  /* Legacy Tokens (für Kompatibilität) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -37,13 +52,48 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: var(--polizei-radius-sm);
+  --radius-md: var(--polizei-radius-md);
+  --radius-lg: var(--polizei-radius-lg);
+  --radius-full: var(--polizei-radius-full);
+  --shadow-soft: var(--polizei-shadow-soft);
 }
 
 :root {
+  /* Polizei-CI Farben (OKLCH-Werte als Kommentar dokumentiert) */
+  /* Polizei-Blau: oklch(0.55 0.12 265) */
+  --polizei-primary: #004b9b;
+  --polizei-primary-soft: #e0ecf8;
+  --polizei-primary-contrast: #ffffff;
+
+  /* Warnfarben – Warn-Gelb: oklch(0.80 0.15 95) */
+  --polizei-warn: #ffcc00;
+  --polizei-warn-contrast: #1a1a1a;
+
+  /* Neutralflächen */
+  --polizei-bg: #f5f7fa;
+  --polizei-bg-elevated: #ffffff;
+  --polizei-fg: #111827;
+  --polizei-border-subtle: #d1d5db;
+
+  /* Statusfarben */
+  --polizei-success: #15803d;
+  --polizei-error: #b91c1c;
+
+  /* Typografie */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Radius & Spacing */
+  --polizei-radius-sm: 0.25rem;
+  --polizei-radius-md: 0.5rem;
+  --polizei-radius-lg: 0.75rem;
+  --polizei-radius-full: 9999px;
+
+  /* Shadows */
+  --polizei-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.08);
+
+  /* Legacy Tokens (für Kompatibilität) */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -78,7 +128,15 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+[data-theme="dark"],
 .dark {
+  /* Polizei-CI Dark Mode */
+  --polizei-bg: #020617;
+  --polizei-bg-elevated: #1e293b;
+  --polizei-fg: #e5e7eb;
+  --polizei-border-subtle: #1f2937;
+
+  /* Legacy Dark Mode Tokens */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -116,7 +174,48 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-bg text-fg antialiased;
+    font-family: var(--font-sans);
   }
+}
+
+/* Skip-Link Styling */
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 50;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-200%);
+  transition: transform 120ms ease-out;
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* Layout-Shell */
+.layout-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Globale Fokus-Styles nach WCAG 2.2 */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
