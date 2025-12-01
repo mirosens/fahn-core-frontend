@@ -9,6 +9,23 @@ if (process.env.NODE_ENV === "development") {
 const nextConfig: NextConfig = {
   // Trailing Slashes deaktivieren für kanonische URLs ohne Slash
   trailingSlash: false,
+
+  // Performance-Optimierungen
+  experimental: {
+    // Optimiertes Caching für bessere Performance
+    optimizePackageImports: [
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-toast",
+      "lucide-react",
+    ],
+  },
+
+  // TypeScript-Optimierungen
+  typescript: {
+    // TypeScript-Fehler blockieren den Build nicht in Entwicklung
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;

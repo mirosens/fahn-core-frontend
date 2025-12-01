@@ -1,4 +1,5 @@
-// middleware.ts - Edge-Middleware für geschützte Routen
+// proxy.ts - Edge-Proxy für geschützte Routen (Next.js 16)
+// Ersetzt die deprecated middleware.ts
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -9,7 +10,7 @@ const PROTECTED_PATHS = [
   "/fahndungen/verwaltung",
 ];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Prüfe ob der Pfad geschützt ist
