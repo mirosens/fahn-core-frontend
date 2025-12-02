@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import type { FahndungItem } from "@/lib/typo3Client";
 import { FahndungCardLink } from "./FahndungCardLink";
@@ -23,26 +22,8 @@ export function FlipCard({
   isCarousel = false,
 }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(() => typeof window !== "undefined");
   const cardRef = useRef<HTMLDivElement>(null);
-  const frontRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLDivElement>(null);
-
-  // Warte auf Mount, um Hydration-Probleme zu vermeiden
-  useEffect(() => {
-    if (!mounted) {
-      // Verwende setTimeout, um setState asynchron aufzurufen
-      const timeoutId = setTimeout(() => {
-        setMounted(true);
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [mounted]);
-
-  // Bestimme das tatsächliche Theme (resolvedTheme berücksichtigt system preference)
-  const currentTheme = mounted ? resolvedTheme || theme : "light";
 
   // Kategorie-Labels
   const getCategoryLabel = (type: FahndungItem["type"]) => {
@@ -70,11 +51,8 @@ export function FlipCard({
   };
 
   const flipCard = useCallback(() => {
-    if (isAnimating) return;
-    setIsAnimating(true);
     setIsFlipped((prev) => !prev);
-    setTimeout(() => setIsAnimating(false), 500);
-  }, [isAnimating]);
+  }, []);
 
   // Keyboard & Click-Handler
   useEffect(() => {
@@ -129,22 +107,31 @@ export function FlipCard({
     <section
       ref={cardRef}
       className="relative mx-auto w-full max-w-sm"
-      style={{ height: cardHeight }}
+      style={{
+        height: cardHeight,
+        perspective: "1000px",
+        WebkitPerspective: "1000px",
+      }}
       aria-label={`Fahndungskarte: ${fahndung.title}`}
     >
       <div
-        className="relative h-full w-full transition-transform duration-700 ease-in-out"
+        className="relative h-full w-full"
         style={{
           transformStyle: "preserve-3d",
+          WebkitTransformStyle: "preserve-3d",
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          transition: "transform 0.9s ease-in-out",
+          willChange: "transform",
         }}
       >
         {/* FRONT SIDE */}
         <div
-          ref={frontRef}
-          className="absolute inset-0 flex h-full w-full flex-col overflow-hidden bg-white dark:bg-gray-800 rounded-[10px] shadow-lg"
+          className="absolute inset-0 flex h-full w-full flex-col overflow-hidden bg-white dark:bg-gray-800 rounded-[10px] shadow-xl"
           style={{
             backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(0deg)",
+            WebkitTransform: "rotateY(0deg)",
           }}
         >
           {/* Image Section */}
@@ -282,12 +269,12 @@ export function FlipCard({
 
           {/* Controls - nur auf der Vorderseite sichtbar */}
           <div
-            className="absolute left-3 right-3 flex items-center justify-between gap-2 border-t border-border/50 pt-2 transition-all duration-500 ease-in-out dark:border-border/50"
+            className="absolute left-3 right-3 flex items-center justify-between gap-2 border-t border-border/50 pt-2 dark:border-border/50"
             style={{
               bottom: "0.75rem",
               opacity: isFlipped ? 0 : 1,
               visibility: isFlipped ? "hidden" : "visible",
-              transform: isFlipped ? "scale(0.8)" : "scale(1)",
+              transition: "opacity 0.3s ease, visibility 0.3s ease",
             }}
           >
             <div className="flex-1">
@@ -333,10 +320,12 @@ export function FlipCard({
         {/* BACK SIDE */}
         <div
           ref={backRef}
-          className="absolute inset-0 flex h-full w-full flex-col overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-800 dark:to-blue-950 rounded-[10px] shadow-lg"
+          className="absolute inset-0 flex h-full w-full flex-col overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-800 dark:to-blue-950 rounded-[10px] shadow-xl"
           style={{
             backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
+            WebkitTransform: "rotateY(180deg)",
           }}
         >
           <div className="flex items-center justify-between border-b border-white/20 p-4">
