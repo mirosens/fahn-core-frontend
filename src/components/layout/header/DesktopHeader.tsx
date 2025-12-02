@@ -73,22 +73,22 @@ export default function DesktopHeader({ onFilterClose }: DesktopHeaderProps) {
   };
 
   return (
-    <div className="hidden items-center gap-3 desktop:flex">
+    <div className="flex items-center gap-3">
       {/* Search */}
-      <div className="hidden items-center justify-center desktop:flex">
+      <div className="flex items-center justify-center">
         <HeaderSearch />
       </div>
 
       {/* Separator */}
-      <div className="hidden h-8 w-px bg-border/60 desktop:block" />
+      <div className="h-8 w-px bg-border/60" />
 
       {/* Theme Toggle */}
-      <div className="hidden desktop:flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <VerticalThemeToggle />
       </div>
 
       {/* Separator */}
-      <div className="hidden h-8 w-px bg-border/60 desktop:block" />
+      <div className="h-8 w-px bg-border/60" />
 
       {/* Hamburger Menu */}
       <div

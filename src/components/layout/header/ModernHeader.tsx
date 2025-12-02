@@ -95,9 +95,7 @@ export default function ModernHeader() {
           ${
             isMobile
               ? "h-14"
-              : hasActiveFilters && !isMobile
-                ? "h-auto min-h-20 transition-all duration-300 ease-out [&.scrolled]:min-h-16"
-                : "h-20 transition-all duration-300 ease-out [&.scrolled]:h-16"
+              : "h-20 transition-all duration-300 ease-out [&.scrolled]:h-16"
           }
         `}
         role="banner"
@@ -107,7 +105,7 @@ export default function ModernHeader() {
         <div
           className={`
           glass-header glass-header-container mx-auto
-          ${hasActiveFilters && !isMobile ? "min-h-full" : "h-full"} max-w-[1273px]
+          h-full max-w-[1273px]
           ${
             isMobile
               ? "mt-0 rounded-none"
@@ -115,9 +113,7 @@ export default function ModernHeader() {
           }
         `}
         >
-          <div
-            className={`${hasActiveFilters && !isMobile ? "py-4" : "h-full"} px-4 sm:px-6 lg:px-8`}
-          >
+          <div className="h-full px-4 sm:px-6 lg:px-8">
             {/* Erste Zeile: Logo, Filter, Actions */}
             <div className="relative flex h-full items-center">
               {/* Logo */}
@@ -133,7 +129,7 @@ export default function ModernHeader() {
               )}
 
               {/* Desktop Header - mit gleichmäßigen Abständen - nur ab 1281px */}
-              <div className="hidden desktop:block flex-shrink-0 ml-auto">
+              <div className="hidden xl:flex flex-shrink-0 ml-auto">
                 <DesktopHeader
                   onFilterToggle={toggleFilter}
                   isFilterOpen={isFilterOpen}
@@ -144,7 +140,7 @@ export default function ModernHeader() {
               </div>
 
               {/* Mobile Actions - rechts */}
-              <div className="flex items-center ml-auto desktop:hidden">
+              <div className="flex items-center ml-auto xl:hidden">
                 {isFahndungenPage && (
                   <button
                     onClick={toggleFilter}
@@ -204,9 +200,7 @@ export default function ModernHeader() {
           ${
             isMobile
               ? "h-14"
-              : hasActiveFilters && !isMobile
-                ? "min-h-20 transition-all duration-300 [.scrolled_&]:min-h-16"
-                : "h-20 transition-all duration-300 [.scrolled_&]:h-16"
+              : "h-20 transition-all duration-300 [.scrolled_&]:h-16"
           }
         `}
       />

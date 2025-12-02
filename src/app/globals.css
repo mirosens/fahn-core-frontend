@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+
   /* Polizei-CI Design Tokens */
   --color-primary: var(--polizei-primary);
   --color-primary-soft: var(--polizei-primary-soft);
