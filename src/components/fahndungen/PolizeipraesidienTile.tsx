@@ -245,20 +245,22 @@ export const PolizeipraesidienTile: React.FC<PolizeipraesidienTileProps> = ({
   };
 
   // Render Liste
-  const renderListContent = () => (
+  const renderListContent = (showSearch = true) => (
     <div className="h-full flex flex-col min-h-0">
-      <div className="flex-shrink-0 mb-4">
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Dienststellen suchen..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-          />
+      {showSearch && (
+        <div className="flex-shrink-0 mb-4">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Dienststellen suchen..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="flex-1 overflow-y-auto min-h-0">
         {filteredPPs.length > 0 ? (
@@ -483,7 +485,7 @@ export const PolizeipraesidienTile: React.FC<PolizeipraesidienTileProps> = ({
 
               {/* Liste - Segmente */}
               <div className="flex-1 overflow-y-auto p-1.5 min-h-0">
-                {renderListContent()}
+                {renderListContent(false)}
               </div>
             </div>
           </div>
