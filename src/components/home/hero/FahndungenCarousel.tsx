@@ -64,7 +64,10 @@ export function FahndungenCarousel({
         </div>
 
         {/* Empty State */}
-        <div className="relative aspect-[3/4] w-full mx-auto max-w-[300px]">
+        <div
+          className="relative w-full mx-auto max-w-sm"
+          style={{ height: "400px" }}
+        >
           <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-800/30 backdrop-blur-sm flex items-center justify-center p-8">
             <p className="text-center text-slate-600 dark:text-slate-400 text-lg">
               Aktuell keine{" "}
@@ -84,7 +87,10 @@ export function FahndungenCarousel({
       <div className="relative group">
         {/* Card Container */}
         <div className="relative">
-          <div className="relative aspect-[3/4] w-full mx-auto max-w-[300px]">
+          <div
+            className="relative w-full mx-auto max-w-sm"
+            style={{ height: "400px" }}
+          >
             <AnimatePresence mode="wait">
               {currentFahndung && (
                 <motion.div
@@ -98,6 +104,7 @@ export function FahndungenCarousel({
                   <FlipCard
                     fahndung={currentFahndung}
                     onDetailsClick={() => setSelectedFahndung(currentFahndung)}
+                    layoutMode="grid-4"
                     isCarousel={true}
                   />
                 </motion.div>
@@ -138,7 +145,7 @@ export function FahndungenCarousel({
 
           {/* Modern Pagination Dots - unter dem Carousel */}
           {filteredFahndungen.length > 1 && (
-            <div className="flex items-center justify-center gap-1.5 mt-4 lg:mt-5 mb-8 lg:mb-12 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center justify-center gap-1.5 mt-6 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
               {filteredFahndungen.map((_item, idx) => (
                 <button
                   key={idx}
