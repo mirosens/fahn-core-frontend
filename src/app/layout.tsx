@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@/styles/glassmorphism-header.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/layout/site-header";
+import ModernHeader from "@/components/layout/header/ModernHeader";
 import { SiteFooter } from "@/components/layout/site-footer";
 
 const geistSans = Geist({
@@ -46,11 +48,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="layout-shell">
-            <SiteHeader />
+            <Suspense fallback={<div className="h-20" />}>
+              <ModernHeader />
+            </Suspense>
 
             <main
               id="main-content"
-              className="layout-main"
+              className="layout-main min-h-screen"
               role="main"
               aria-label="Hauptinhalt Fahndungsportal"
             >

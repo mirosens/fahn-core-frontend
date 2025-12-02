@@ -7,12 +7,60 @@ import {
   zNavigationResponse,
   type NavigationResponse,
 } from "@/types/navigation";
-import {
-  zFahndungenResponse,
-  type FahndungenResponse,
-} from "@/types/fahndungen";
 import { zPageResponse, type PageResponse } from "@/types/page";
 import type { ZodType } from "zod";
+import { notFound } from "next/navigation";
+
+// Production-ready types for B.5 implementation
+export interface FahndungItem {
+  id: number;
+  title: string;
+  description?: string;
+  summary: string;
+  status: "active" | "completed" | "archived";
+  type: "missing_person" | "witness_appeal" | "wanted";
+  location?: string;
+  delikt?: string;
+  publishedAt: string;
+  slug: string;
+  image?: {
+    url: string;
+    alternative: string;
+  };
+  isNew?: boolean;
+  date?: string | number;
+  kategorie?: string;
+  tatzeit?: string;
+  dienststelle?: string;
+}
+
+interface FahndungenApiResponse {
+  meta: {
+    total: string | number;
+    page: string | number;
+    pageSize: string | number;
+    lastUpdated?: string;
+  };
+  items: FahndungItem[];
+}
+
+interface ContentElement {
+  type: string;
+  content?: string | Record<string, unknown>;
+}
+
+interface Typo3PageResponse {
+  id: number;
+  title: string;
+  content: {
+    [colPos: string]: ContentElement[];
+  };
+  breadcrumb?: Array<{
+    title: string;
+    link: string;
+    active: boolean;
+  }>;
+}
 
 // Production-ready API endpoint configuration
 const T3_BASE =
@@ -82,52 +130,186 @@ export const typo3Client = {
   },
 
   async getFahndungen(
-    params?: URLSearchParams,
+    params?:
+      | URLSearchParams
+      | {
+          status?: string;
+          region?: string;
+          delikt?: string;
+          page?: number;
+        },
     options?: { cache?: RequestCache; next?: { tags?: string[] } }
-  ): Promise<FahndungenResponse> {
-    // Production-ready Fahndungen endpoint using reliable typeNum
-    const paramObj = params ? Object.fromEntries(params.entries()) : undefined;
+  ): Promise<FahndungenApiResponse> {
+    // Production-ready Fahndungen endpoint with type safety and error handling
+    let paramObj: Record<string, unknown> | undefined;
+
+    if (params instanceof URLSearchParams) {
+      paramObj = Object.fromEntries(params.entries());
+    } else if (params) {
+      paramObj = {
+        status: params.status,
+        region: params.region,
+        delikt: params.delikt,
+        page: params.page?.toString(),
+      };
+      // Remove undefined values
+      paramObj = Object.fromEntries(
+        Object.entries(paramObj).filter(([, value]) => value !== undefined)
+      );
+    }
+
     const url = buildApiUrl(API_ENDPOINTS.fahndungen, paramObj);
     console.log("[typo3Client] Fetching Fahndungen from:", url);
 
-    const data = await t3Fetch<unknown>(url, {
-      cache: options?.cache ?? "no-store", // Fahndungen sind dynamisch
-      next: {
-        tags: options?.next?.tags ?? ["fahndungen:list"],
-      },
-    });
-    return parseWithSchema(zFahndungenResponse, data, "FAHNDUNGEN_LIST");
+    try {
+      const data = await t3Fetch<FahndungenApiResponse>(url, {
+        cache: options?.cache ?? "no-store", // Fahndungen sind dynamisch
+        next: {
+          tags: options?.next?.tags ?? ["fahndungen", "list"],
+          revalidate: 120, // ISR: 2 minutes
+        },
+      });
+
+      // Validate and normalize response
+      if (!data || typeof data !== "object") {
+        throw new Error("Invalid API response structure");
+      }
+
+      // Ensure items is an array
+      if (!Array.isArray(data.items)) {
+        console.warn(
+          "[typo3Client] items is not an array, converting:",
+          data.items
+        );
+        data.items = [];
+      }
+
+      // Normalize meta data
+      const normalizedData: FahndungenApiResponse = {
+        meta: {
+          total: Number(data.meta?.total) || 0,
+          page: Number(data.meta?.page) || 1,
+          pageSize: Number(data.meta?.pageSize) || 10,
+          lastUpdated: data.meta?.lastUpdated,
+        },
+        items: data.items.map((item) => ({
+          id: Number(item.id),
+          title: item.title || "Untitled",
+          description: item.description || item.summary,
+          summary: item.summary || "",
+          status: this.normalizeStatus(item.status),
+          type: this.normalizeType(item.type),
+          location: item.location,
+          delikt: item.delikt,
+          publishedAt: item.publishedAt || new Date().toISOString(),
+          slug: item.slug || `fahndung-${item.id}`,
+          image: item.image,
+        })),
+      };
+
+      return normalizedData;
+    } catch (error) {
+      console.error("[typo3Client] Error fetching Fahndungen:", error);
+
+      // Return empty but valid response structure for graceful degradation
+      return {
+        meta: { total: 0, page: 1, pageSize: 10 },
+        items: [],
+      };
+    }
+  },
+
+  // Helper methods for data normalization
+  normalizeStatus(status: unknown): "active" | "completed" | "archived" {
+    if (typeof status === "string") {
+      switch (status.toLowerCase()) {
+        case "active":
+        case "aktiv":
+          return "active";
+        case "completed":
+        case "erledigt":
+          return "completed";
+        case "archived":
+        case "archiviert":
+          return "archived";
+        default:
+          return "active";
+      }
+    }
+    return "active";
+  },
+
+  normalizeType(type: unknown): "missing_person" | "witness_appeal" | "wanted" {
+    if (typeof type === "string") {
+      switch (type.toLowerCase()) {
+        case "missing_person":
+        case "vermisst":
+          return "missing_person";
+        case "witness_appeal":
+        case "zeugenaufruf":
+          return "witness_appeal";
+        case "wanted":
+        case "fahndung":
+          return "wanted";
+        default:
+          return "wanted";
+      }
+    }
+    return "wanted";
   },
 
   async getFahndungById(
-    id: string,
+    idOrSlug: string | number,
     options?: { cache?: RequestCache; next?: { tags?: string[] } }
-  ): Promise<FahndungenResponse["items"][number]> {
-    const data = await t3Fetch<unknown>(
-      `/fahndungen/${encodeURIComponent(id)}`,
-      {
+  ): Promise<Typo3PageResponse> {
+    // Use headless page API by constructing path directly
+    const path = `/fahndungen/${encodeURIComponent(idOrSlug)}`;
+    console.log("[typo3Client] Fetching Fahndung detail from path:", path);
+
+    try {
+      const data = await t3Fetch<{
+        page?: {
+          id?: number | string;
+          title?: string;
+          content?: Record<string, ContentElement[]>;
+          breadcrumb?: Array<{
+            title: string;
+            link: string;
+            active: boolean;
+          }>;
+        };
+        id?: number | string;
+        title?: string;
+        content?: Record<string, ContentElement[]>;
+        breadcrumb?: Array<{
+          title: string;
+          link: string;
+          active: boolean;
+        }>;
+      }>(path, {
         cache: options?.cache ?? "force-cache",
         next: {
-          tags: options?.next?.tags ?? [`fahndung:${id}`, "fahndungen:list"],
+          tags: options?.next?.tags ?? [`fahndung:${idOrSlug}`, "fahndungen"],
         },
-      }
-    );
-    const parsed = parseWithSchema(
-      zFahndungenResponse,
-      data,
-      "FAHNDUNG_DETAIL"
-    );
-
-    const item = parsed.items?.[0];
-    if (!item) {
-      throw new ApiError({
-        message: `Fahndung ${id} not found in response`,
-        code: "FAHNDUNG_NOT_FOUND",
-        status: 404,
       });
-    }
 
-    return item;
+      if (!data) {
+        notFound();
+      }
+
+      // Normalize response structure
+      const normalizedData: Typo3PageResponse = {
+        id: Number(data.page?.id) || Number(idOrSlug),
+        title: data.page?.title || data.title || "Untitled",
+        content: data.content || data.page?.content || {},
+        breadcrumb: data.breadcrumb || data.page?.breadcrumb,
+      };
+
+      return normalizedData;
+    } catch (error) {
+      console.error("[typo3Client] Error fetching Fahndung detail:", error);
+      notFound();
+    }
   },
 
   async getFormDefinition(identifier: string) {

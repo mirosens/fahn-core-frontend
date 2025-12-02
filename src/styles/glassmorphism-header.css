@@ -1,0 +1,144 @@
+/* ==============================
+   Glassmorphism Header Optimized
+   ============================== */
+
+/* Basis (Fallback für alte Browser) */
+.glass-header {
+  background: rgba(255, 255, 255, 0.92); /* fast weiß, klare Lesbarkeit */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  backdrop-filter: none; /* Fallback */
+  -webkit-backdrop-filter: none;
+  transition: all 0.3s ease;
+}
+
+.dark .glass-header {
+  background: rgba(15, 25, 45, 0.92); /* Navy-Blau statt Schwarz */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Modern Browser mit Blur */
+@supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
+  .glass-header {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .glass-header {
+    background: rgba(15, 25, 45, 0.75); /* Navy-Blau statt Schwarz */
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Mobile Performance Optimierung */
+@media (max-width: 768px) {
+  .glass-header {
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
+  }
+}
+
+/* Accessibility & Barrierefreiheit */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: high) {
+  .glass-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: #fff !important;
+  }
+  .dark .glass-header {
+    background: #111 !important;
+  }
+}
+
+/* Header Container Optimierungen */
+.glass-header-container {
+  /* Hardware-Acceleration für smoothe Performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  position: relative; /* Für ::after Pseudo-Element */
+
+  /* Smooth transitions - aber NICHT auf left/width/top/transform */
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              margin-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Filterleiste: Kein visueller Spalt - nahtlose Verbindung */
+.glass-header-container[role="dialog"] {
+  margin-top: -1px; /* Überlappung um 1px */
+  padding-top: 1px; /* Ausgleich */
+  transform-origin: top center;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+  /* KEINE transition auf: transform, left, width, top, right */
+  /* transform wird für Positionierung verwendet, nicht animiert */
+}
+
+/* Scrolled State - stärkerer Effekt */
+.glass-header.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.dark .glass-header.scrolled {
+  background: rgba(15, 25, 45, 0.95); /* Navy-Blau statt Schwarz */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Dropdown-Styles - Nicht transparent */
+.glass-header .bg-popover\/95,
+.glass-header .dark\:bg-popover\/90,
+.glass-header [class*="bg-popover"],
+.glass-header .dropdown-menu,
+.glass-header [role="menu"],
+.glass-header [data-radix-popper-content-wrapper] {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .glass-header .bg-popover\/95,
+.dark .glass-header .dark\:bg-popover\/90,
+.dark .glass-header [class*="bg-popover"],
+.dark .glass-header .dropdown-menu,
+.dark .glass-header [role="menu"],
+.dark .glass-header [data-radix-popper-content-wrapper] {
+  background: #1e293b !important; /* Slate-800 für Dark Mode */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Focus states for accessibility */
+.glass-header-container *:focus-visible {
+  outline: 2px solid rgb(59 130 246);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Ensure proper z-indexing */
+.glass-header {
+  z-index: 50;
+}
+
+.filter-panel-glass {
+  z-index: 40;
+}
+
+/* Performance optimizations */
+.glass-header-container,
+.filter-panel-glass {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
