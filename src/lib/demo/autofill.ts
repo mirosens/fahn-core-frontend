@@ -197,3 +197,190 @@ export async function generateStep2NewFieldsData(
     personenbeschreibung,
   };
 }
+
+// Hilfsfunktion: Extrahiere Stadtname aus Department-String
+function extractCity(department: string): string | null {
+  if (!department) return null;
+
+  const cities = [
+    "Stuttgart",
+    "Karlsruhe",
+    "Mannheim",
+    "Freiburg",
+    "Ulm",
+    "Heilbronn",
+    "Pforzheim",
+    "Ravensburg",
+    "Reutlingen",
+    "Ludwigsburg",
+    "Offenburg",
+    "Aalen",
+    "Konstanz",
+  ];
+
+  for (const city of cities) {
+    if (department.includes(city)) {
+      return city;
+    }
+  }
+
+  return null;
+}
+
+// Generiert Demo-Kontaktperson
+export function generateDemoContactPerson(data: Partial<WizardData>): string {
+  const department =
+    data.step1?.department ?? data.step5?.department ?? "Stuttgart";
+
+  // Deutsche Kontaktpersonen
+  const contacts = [
+    "KHK Müller",
+    "KK Weber",
+    "PHK Schmidt",
+    "KOK Fischer",
+    "Kriminalhauptkommissar Meyer",
+    "Kriminalkommissar Wagner",
+    "Polizeihauptkommissar Schulz",
+    "Kriminaloberkommissar Hoffmann",
+  ];
+
+  return contacts[Math.floor(Math.random() * contacts.length)] ?? "KHK Müller";
+}
+
+// Generiert Demo-Telefonnummer
+export function generateDemoContactPhone(data: Partial<WizardData>): string {
+  const department =
+    data.step1?.department ?? data.step5?.department ?? "Stuttgart";
+  const city = extractCity(department);
+
+  // Deutsche Telefonnummern
+  const phoneNumbers = [
+    "0711 899-0000", // Stuttgart
+    "0721 666-0000", // Karlsruhe
+    "0621 174-0000", // Mannheim
+    "0761 882-0000", // Freiburg
+    "0731 188-0000", // Ulm
+    "0751 366-0000", // Ravensburg
+    "07121 301-0000", // Reutlingen
+    "07141 910-0000", // Ludwigsburg
+    "07131 56-0000", // Heilbronn
+    "0781 82-0000", // Offenburg
+    "07231 39-0000", // Pforzheim
+    "07361 52-0000", // Aalen
+    "07531 98-0000", // Konstanz
+  ];
+
+  // Versuche passende Nummer zur Stadt zu finden
+  if (city) {
+    const cityMap: Record<string, string> = {
+      Stuttgart: "0711 899-0000",
+      Karlsruhe: "0721 666-0000",
+      Mannheim: "0621 174-0000",
+      Freiburg: "0761 882-0000",
+      Ulm: "0731 188-0000",
+      Ravensburg: "0751 366-0000",
+      Reutlingen: "07121 301-0000",
+      Ludwigsburg: "07141 910-0000",
+      Heilbronn: "07131 56-0000",
+      Offenburg: "0781 82-0000",
+      Pforzheim: "07231 39-0000",
+      Aalen: "07361 52-0000",
+      Konstanz: "07531 98-0000",
+    };
+
+    const phone = cityMap[city];
+    if (phone !== undefined) {
+      return phone;
+    }
+  }
+
+  // Fallback: zufällige Nummer
+  const randomIndex = Math.floor(Math.random() * phoneNumbers.length);
+  const randomPhone = phoneNumbers[randomIndex]!;
+  return randomPhone;
+}
+
+// Generiert Demo-E-Mail-Adresse
+export function generateDemoContactEmail(data: Partial<WizardData>): string {
+  const department =
+    data.step1?.department ?? data.step5?.department ?? "Stuttgart";
+  const city = extractCity(department);
+
+  // Deutsche E-Mail-Adressen
+  const emailTemplates = [
+    "hinweise@polizei-bw.de",
+    "kriminalpolizei@polizei-bw.de",
+    "fahndung@polizei-bw.de",
+    "kontakt@polizei-bw.de",
+  ];
+
+  // Spezielle E-Mails für alle Baden-Württemberg Städte
+  if (city) {
+    const cityEmails: Record<string, string> = {
+      Stuttgart: "hinweise@polizei-stuttgart.de",
+      Karlsruhe: "hinweise@polizei-karlsruhe.de",
+      Mannheim: "hinweise@polizei-mannheim.de",
+      Freiburg: "hinweise@polizei-freiburg.de",
+      Ulm: "hinweise@polizei-ulm.de",
+      Heilbronn: "hinweise@polizei-heilbronn.de",
+      Pforzheim: "hinweise@polizei-pforzheim.de",
+      Ravensburg: "hinweise@polizei-ravensburg.de",
+      Reutlingen: "hinweise@polizei-reutlingen.de",
+      Ludwigsburg: "hinweise@polizei-ludwigsburg.de",
+      Offenburg: "hinweise@polizei-offenburg.de",
+      Aalen: "hinweise@polizei-aalen.de",
+      Konstanz: "hinweise@polizei-konstanz.de",
+    };
+
+    const email = cityEmails[city];
+    if (email !== undefined) {
+      return email;
+    }
+  }
+
+  // Fallback: zufällige E-Mail
+  const randomIndex = Math.floor(Math.random() * emailTemplates.length);
+  const randomEmail = emailTemplates[randomIndex]!;
+  return randomEmail;
+}
+
+// Generiert Demo-Organisationseinheit
+export function generateDemoDepartment(data: Partial<WizardData>): string {
+  const category = data.step1?.category ?? "MISSING_PERSON";
+  const existingDepartment = data.step1?.department ?? data.step5?.department;
+
+  // Baden-Württemberg Städte (kurze Namen)
+  const lkaDepartments = [
+    "Aalen",
+    "Freiburg",
+    "Heilbronn",
+    "Karlsruhe",
+    "Konstanz",
+    "Ludwigsburg",
+    "Mannheim",
+    "Offenburg",
+    "Pforzheim",
+    "Ravensburg",
+    "Reutlingen",
+    "Stuttgart",
+    "Ulm",
+  ];
+
+  // Wenn bereits eine Abteilung vorhanden ist, verwende diese
+  if (existingDepartment && lkaDepartments.includes(existingDepartment)) {
+    return existingDepartment;
+  }
+
+  // Versuche aus Step1 Office zu extrahieren
+  const office = data.step1?.office;
+  if (office) {
+    const city = extractCity(office);
+    if (city && lkaDepartments.includes(city)) {
+      return city;
+    }
+  }
+
+  // Fallback: zufällige Abteilung
+  const randomIndex = Math.floor(Math.random() * lkaDepartments.length);
+  return lkaDepartments[randomIndex] ?? "Stuttgart";
+}

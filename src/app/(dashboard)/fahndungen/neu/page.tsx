@@ -18,6 +18,7 @@ import Step1Component from "@/components/fahndungen/wizard/steps/Step1Component"
 import Step2Component from "@/components/fahndungen/wizard/steps/Step2Component";
 import Step3Component from "@/components/fahndungen/wizard/steps/Step3Component";
 import Step4Component from "@/components/fahndungen/wizard/steps/Step4Component";
+import Step5Component from "@/components/fahndungen/wizard/steps/Step5Component";
 import LivePreviewCard from "@/components/fahndungen/wizard/preview/LivePreviewCard";
 import type { WizardData } from "@/components/fahndungen/wizard/types/WizardTypes";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -296,6 +297,27 @@ export default function NeueFahndungPage() {
       mainLocation: null,
       additionalLocations: [],
     },
+    step5: {
+      contactPerson: "",
+      contactPhone: "",
+      contactEmail: "",
+      organizationalUnit: "",
+      publishStatus: "draft",
+      urgencyLevel: "medium",
+      requiresApproval: false,
+      visibility: {
+        internal: true,
+        regional: false,
+        national: false,
+        international: false,
+      },
+      notifications: {
+        emailAlerts: false,
+        smsAlerts: false,
+        appNotifications: false,
+        pressRelease: false,
+      },
+    },
   });
 
   const steps = [
@@ -547,10 +569,14 @@ export default function NeueFahndungPage() {
         );
       case 5:
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Schritt 5: Kontakt</h2>
-            <p className="text-muted-foreground">Wird noch implementiert...</p>
-          </div>
+          wizardData.step5 && (
+            <Step5Component
+              data={wizardData.step5}
+              onChange={(data) => updateStepData("step5", data)}
+              wizard={wizardData}
+              showValidation={triedNext}
+            />
+          )
         );
       case 6:
         return (
