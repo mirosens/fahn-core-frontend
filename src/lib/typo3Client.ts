@@ -4,6 +4,7 @@
 import { t3Fetch } from "./t3Fetch";
 import { t3ApiBaseUrl } from "./config";
 import { ApiError } from "./api-error";
+import { mockFahndungen } from "./mockFahndungen";
 import {
   zNavigationResponse,
   type NavigationResponse,
@@ -154,6 +155,25 @@ export const typo3Client = {
       );
     }
 
+    // Prüfe ob Mock-Daten erzwungen werden sollen
+    // Wenn NEXT_PUBLIC_USE_MOCK_DATA=true gesetzt ist, verwende immer Mock-Daten
+    const useMockData = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+
+    if (useMockData) {
+      console.log(
+        "[typo3Client] Using mock data (NEXT_PUBLIC_USE_MOCK_DATA=true)"
+      );
+      return {
+        meta: {
+          total: mockFahndungen.length,
+          page: 1,
+          pageSize: 10,
+          lastUpdated: new Date().toISOString(),
+        },
+        items: mockFahndungen,
+      };
+    }
+
     const url = buildApiUrl(API_ENDPOINTS.fahndungen, paramObj);
     console.log("[typo3Client] Fetching Fahndungen from:", url);
 
@@ -203,14 +223,36 @@ export const typo3Client = {
         })),
       };
 
+      // Wenn keine Daten von der API kommen, Mock-Daten verwenden
+      if (normalizedData.items.length === 0) {
+        console.log(
+          "[typo3Client] No data from API, using mock data as fallback"
+        );
+        return {
+          meta: {
+            total: mockFahndungen.length,
+            page: 1,
+            pageSize: 10,
+            lastUpdated: new Date().toISOString(),
+          },
+          items: mockFahndungen,
+        };
+      }
+
       return normalizedData;
     } catch (error) {
       console.error("[typo3Client] Error fetching Fahndungen:", error);
 
-      // Return empty but valid response structure for graceful degradation
+      // Bei Fehler immer Mock-Daten zurückgeben
+      console.log("[typo3Client] Using mock data due to error");
       return {
-        meta: { total: 0, page: 1, pageSize: 10 },
-        items: [],
+        meta: {
+          total: mockFahndungen.length,
+          page: 1,
+          pageSize: 10,
+          lastUpdated: new Date().toISOString(),
+        },
+        items: mockFahndungen,
       };
     }
   },

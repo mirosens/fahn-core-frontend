@@ -78,6 +78,7 @@ export function FahndungenGridWithPagination({
           <FlipCard
             key={fahndung.id}
             fahndung={fahndung}
+            layoutMode={viewMode === "grid-4" ? "grid-4" : "default"}
             onDetailsClick={() => {
               if (onFahndungClick) {
                 onFahndungClick(fahndung);

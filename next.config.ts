@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
   // Trailing Slashes deaktivieren für kanonische URLs ohne Slash
   trailingSlash: false,
 
+  // Bild-Konfiguration für externe Hosts
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+    ],
+  },
+
   // Performance-Optimierungen
   experimental: {
     // Optimiertes Caching für bessere Performance

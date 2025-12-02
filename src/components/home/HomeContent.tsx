@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { typo3Client, type FahndungItem } from "@/lib/typo3Client";
 import { FahndungModal } from "@/components/fahndungen/FahndungModal";
-import { HeroCarousel } from "./HeroCarousel";
+import { ModernHeroSection } from "./ModernHeroSection";
 import { FahndungenGridWithPagination } from "@/components/fahndungen/FahndungenGridWithPagination";
 import {
   ViewModeDropdown,
@@ -67,11 +67,14 @@ export default function HomeContent() {
           response.items.length,
           response.items
         );
-        setFahndungen(response.items);
+        // Stelle sicher, dass die Fahndungen gesetzt werden
+        setFahndungen(response.items || []);
       } catch (err) {
         console.error("Fehler beim Laden der Fahndungen:", err);
         setError("Die Fahndungen konnten nicht geladen werden.");
-        setFahndungen([]);
+        // Bei Fehler Mock-Daten verwenden
+        const { mockFahndungen } = await import("@/lib/mockFahndungen");
+        setFahndungen(mockFahndungen);
       } finally {
         setIsLoading(false);
       }
@@ -88,7 +91,13 @@ export default function HomeContent() {
 
   // Gefilterte Fahndungen basierend auf URL-Parametern
   const filteredFahndungen = useMemo(() => {
-    if (!fahndungen.length) {
+    console.log(
+      "[HomeContent] Filter-Logik: fahndungen.length =",
+      fahndungen.length,
+      "fahndungen =",
+      fahndungen
+    );
+    if (!fahndungen || !fahndungen.length) {
       console.log("[HomeContent] Keine Fahndungen zum Filtern vorhanden");
       return [];
     }
@@ -288,7 +297,7 @@ export default function HomeContent() {
   return (
     <>
       {/* Hero Section mit Carousel */}
-      <HeroCarousel fahndungen={fahndungen} />
+      <ModernHeroSection fahndungen={fahndungen} />
 
       {/* Main Content */}
       <div className="bg-gradient-to-b from-slate-50 via-blue-50/30 to-white dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 -mt-2">
