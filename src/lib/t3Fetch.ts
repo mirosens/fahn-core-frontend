@@ -39,16 +39,53 @@ export async function t3Fetch<TResponse = unknown>(
   );
 
   let url: string;
+  const isClient = typeof window !== "undefined";
+
   try {
-    // Normalisiere Base-URL: Stelle sicher, dass sie mit / endet
-    const normalizedBase = t3ApiBaseUrl.endsWith("/")
-      ? t3ApiBaseUrl
-      : `${t3ApiBaseUrl}/`;
+    // Prüfe ob path bereits eine vollständige URL ist
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      // Auf dem Client: Verwende Proxy-Route, um CORS zu vermeiden
+      if (isClient) {
+        // Extrahiere den Pfad und Query-Parameter aus der vollständigen URL
+        const fullUrl = new URL(path);
+        const queryString = fullUrl.search;
 
-    // Entferne führendes / vom Pfad, damit er relativ zur Base-URL ist
-    const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+        // Für Root-Pfad (z.B. /?type=10000) verwenden wir einen speziellen Pfad
+        if (fullUrl.pathname === "/" || fullUrl.pathname === "") {
+          url = `/api/typo3${queryString}`;
+        } else {
+          const pathParts = fullUrl.pathname.split("/").filter(Boolean);
+          url = `/api/typo3/${pathParts.join("/")}${queryString}`;
+        }
+      } else {
+        // Auf dem Server: Direkte URL verwenden
+        url = path;
+      }
+    } else {
+      // Normalisiere Base-URL: Stelle sicher, dass sie mit / endet
+      const normalizedBase = t3ApiBaseUrl.endsWith("/")
+        ? t3ApiBaseUrl
+        : `${t3ApiBaseUrl}/`;
 
-    url = new URL(normalizedPath, normalizedBase).toString();
+      // Entferne führendes / vom Pfad, damit er relativ zur Base-URL ist
+      const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+
+      const targetUrl = new URL(normalizedPath, normalizedBase);
+
+      // Auf dem Client: Verwende Proxy-Route
+      if (isClient) {
+        const pathParts = targetUrl.pathname.split("/").filter(Boolean);
+        const queryString = targetUrl.search;
+        if (pathParts.length === 0) {
+          url = `/api/typo3${queryString}`;
+        } else {
+          url = `/api/typo3/${pathParts.join("/")}${queryString}`;
+        }
+      } else {
+        // Auf dem Server: Direkte URL verwenden
+        url = targetUrl.toString();
+      }
+    }
   } catch (urlError) {
     throw new ApiError({
       message: `Invalid URL construction: ${path} with base ${t3ApiBaseUrl}`,

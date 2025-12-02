@@ -3,9 +3,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { typo3Client, type FahndungItem } from "@/lib/typo3Client";
-import { FlipCard } from "@/components/fahndungen/FlipCard";
 import { FahndungModal } from "@/components/fahndungen/FahndungModal";
-import { FahndungenFilter } from "@/components/fahndungen/FahndungenFilter";
+import { HeroCarousel } from "./HeroCarousel";
+import { FahndungenGridWithPagination } from "@/components/fahndungen/FahndungenGridWithPagination";
+import {
+  ViewModeDropdown,
+  type ViewMode,
+} from "@/components/ui/ViewModeDropdown";
 
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false);
@@ -15,12 +19,39 @@ export default function HomeContent() {
   const [selectedFahndung, setSelectedFahndung] = useState<FahndungItem | null>(
     null
   );
+  const [viewMode, setViewMode] = useState<ViewMode>("grid-4");
   const searchParams = useSearchParams();
 
   // Hydration-Sicherheit
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Lade viewMode aus localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedViewMode = localStorage.getItem(
+        "fahndung-view-mode"
+      ) as ViewMode | null;
+      if (
+        savedViewMode &&
+        (savedViewMode === "grid-3" || savedViewMode === "grid-4")
+      ) {
+        setViewMode(savedViewMode);
+      }
+    }
+  }, []);
+
+  // Speichere viewMode in localStorage
+  const handleViewModeChange = (view: ViewMode) => {
+    setViewMode(view);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("fahndung-view-mode", view);
+    }
+  };
+
+  // Items pro Seite basierend auf Grid-Modus
+  const itemsPerPage = viewMode === "grid-4" ? 8 : 6;
 
   // Lade Fahndungen
   useEffect(() => {
@@ -31,6 +62,11 @@ export default function HomeContent() {
       setError(null);
       try {
         const response = await typo3Client.getFahndungen(searchParams);
+        console.log(
+          "[HomeContent] Geladene Fahndungen:",
+          response.items.length,
+          response.items
+        );
         setFahndungen(response.items);
       } catch (err) {
         console.error("Fehler beim Laden der Fahndungen:", err);
@@ -42,15 +78,20 @@ export default function HomeContent() {
     };
 
     void fetchFahndungen();
-  }, [mounted, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, searchParams.toString()]);
+
+  // Extrahiere Filter-Parameter aus searchParams (außerhalb von useMemo für bessere Performance)
+  const searchTerm = searchParams.get("q") || searchParams.get("search");
+  const fahndungsart = searchParams.get("fahndungsart");
+  const dienststelle = searchParams.get("dienststelle");
 
   // Gefilterte Fahndungen basierend auf URL-Parametern
   const filteredFahndungen = useMemo(() => {
-    if (!fahndungen.length) return [];
-
-    const searchTerm = searchParams.get("q") || searchParams.get("search");
-    const fahndungsart = searchParams.get("fahndungsart");
-    const dienststelle = searchParams.get("dienststelle");
+    if (!fahndungen.length) {
+      console.log("[HomeContent] Keine Fahndungen zum Filtern vorhanden");
+      return [];
+    }
 
     // Lade ausgewählte Segmente aus localStorage
     let selectedSegments: Set<string> = new Set();
@@ -60,6 +101,10 @@ export default function HomeContent() {
         try {
           const segments = JSON.parse(savedSegments) as string[];
           selectedSegments = new Set(segments);
+          console.log(
+            "[HomeContent] Geladene Segmente aus localStorage:",
+            Array.from(selectedSegments)
+          );
         } catch (e) {
           console.error("Fehler beim Laden der Segmente:", e);
         }
@@ -95,7 +140,8 @@ export default function HomeContent() {
         }
       }
 
-      // Dienststellen-Filter über Segmente (wenn Segmente ausgewählt sind)
+      // Dienststellen-Filter über Segmente (nur wenn Segmente explizit ausgewählt sind)
+      // WICHTIG: Wenn keine Segmente im localStorage sind, werden alle Fahndungen angezeigt
       if (selectedSegments.size > 0) {
         const locationLower = (fahndung.location || "").toLowerCase();
         const dienststelleLower = (fahndung.dienststelle || "").toLowerCase();
@@ -177,7 +223,46 @@ export default function HomeContent() {
 
       return true;
     });
-  }, [fahndungen, searchParams]);
+  }, [fahndungen, searchTerm, fahndungsart, dienststelle]);
+
+  // Debug: Log gefilterte Fahndungen
+  useEffect(() => {
+    if (mounted) {
+      console.log(
+        "[HomeContent] Gefilterte Fahndungen:",
+        filteredFahndungen.length,
+        "von",
+        fahndungen.length
+      );
+      if (fahndungen.length > 0 && filteredFahndungen.length === 0) {
+        console.warn(
+          "[HomeContent] ⚠️ WARNUNG: Alle Fahndungen wurden herausgefiltert!"
+        );
+        const savedSegments =
+          typeof window !== "undefined"
+            ? localStorage.getItem("fahndung-selected-segments")
+            : null;
+        console.log("[HomeContent] Filter-Parameter:", {
+          searchTerm,
+          fahndungsart,
+          dienststelle,
+          selectedSegments: savedSegments,
+        });
+        if (savedSegments) {
+          console.warn(
+            "[HomeContent] 💡 TIPP: localStorage enthält Segmente, die möglicherweise alle Fahndungen herausfiltern. Versuchen Sie: localStorage.removeItem('fahndung-selected-segments')"
+          );
+        }
+      }
+    }
+  }, [
+    filteredFahndungen.length,
+    fahndungen.length,
+    mounted,
+    searchTerm,
+    fahndungsart,
+    dienststelle,
+  ]);
 
   // Dispatch Ergebnisanzahl-Update Event
   useEffect(() => {
@@ -202,42 +287,23 @@ export default function HomeContent() {
 
   return (
     <>
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 to-purple-700 dark:from-blue-800 dark:to-purple-900">
-        <div className="container mx-auto px-4 py-12 lg:py-16">
-          <div className="mx-auto max-w-4xl text-center text-white">
-            <h1 className="mb-4 text-4xl font-bold lg:text-5xl">
-              Die Polizei bittet um Ihre Mithilfe
-            </h1>
-            <p className="text-lg opacity-90 lg:text-xl">
-              Das Fahndungsportal der Polizei Baden-Württemberg unterstützt die
-              Öffentlichkeit bei der Aufklärung von Straftaten. Bitte melden Sie
-              sich, wenn Sie Hinweise zu den hier veröffentlichten Fahndungen
-              haben.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Hero Section mit Carousel */}
+      <HeroCarousel fahndungen={fahndungen} />
 
       {/* Main Content */}
       <div className="bg-gradient-to-b from-slate-50 via-blue-50/30 to-white dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 -mt-2">
         <div className="container mx-auto px-4 pt-12 lg:pt-16 pb-8">
           {/* Fahndungsübersicht Titel */}
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-1 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-foreground dark:text-white">
               Fahndungsübersicht
-              {filteredFahndungen.length > 0 && (
-                <span className="text-sm font-normal text-muted-foreground ml-2">
-                  ({filteredFahndungen.length}{" "}
-                  {filteredFahndungen.length === 1 ? "Ergebnis" : "Ergebnisse"})
-                </span>
-              )}
             </h2>
-          </div>
-
-          {/* Filter */}
-          <div id="fahndungsuebersicht-bereich" className="mb-6">
-            <FahndungenFilter />
+            <div className="min-w-[120px]">
+              <ViewModeDropdown
+                viewMode={viewMode}
+                onViewChange={handleViewModeChange}
+              />
+            </div>
           </div>
 
           {/* Error State */}
@@ -268,19 +334,18 @@ export default function HomeContent() {
             </div>
           )}
 
-          {/* Fahndungen Grid */}
+          {/* Fahndungen Grid mit Pagination */}
           {!isLoading && !error && (
-            <div className="space-y-6">
+            <div className="space-y-1">
               {filteredFahndungen.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {filteredFahndungen.map((fahndung) => (
-                    <FlipCard
-                      key={fahndung.id}
-                      fahndung={fahndung}
-                      onDetailsClick={() => setSelectedFahndung(fahndung)}
-                    />
-                  ))}
-                </div>
+                <FahndungenGridWithPagination
+                  fahndungen={filteredFahndungen}
+                  viewMode={viewMode}
+                  itemsPerPage={itemsPerPage}
+                  showPagination={true}
+                  showItemsInfo={true}
+                  onFahndungClick={(fahndung) => setSelectedFahndung(fahndung)}
+                />
               ) : (
                 <div className="rounded-lg border border-border bg-white p-8 text-center shadow-xs dark:border-border dark:bg-muted">
                   <h3 className="mb-2 text-lg font-semibold text-muted-foreground dark:text-white">

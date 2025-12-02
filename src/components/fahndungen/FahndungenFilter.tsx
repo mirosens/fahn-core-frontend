@@ -74,32 +74,12 @@ export function FahndungenFilter({ className }: FilterProps) {
     [filters, updateUrl]
   );
 
-  const resetFilters = useCallback(() => {
-    const emptyFilters = { status: "", region: "", delikt: "" };
-    setFilters(emptyFilters);
-    router.push("/fahndungen");
-  }, [router]);
-
   const hasActiveFilters = Object.values(filters).some(Boolean);
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Filter</h2>
-        {hasActiveFilters && (
-          <button
-            onClick={resetFilters}
-            className="text-sm text-muted-foreground hover:text-primary underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm"
-            aria-label="Alle Filter zurücksetzen"
-          >
-            Alle zurücksetzen
-          </button>
-        )}
-      </div>
-
-      {/* Filter-Steuerungen */}
-      <div className="space-y-4">
+    <div className={`space-y-3 ${className}`}>
+      {/* Kompakte Filter-Steuerungen */}
+      <div className="flex flex-wrap items-center gap-3">
         {/* Status Filter */}
         <div>
           <label

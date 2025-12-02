@@ -2,6 +2,7 @@
 // Production-ready API client using reliable typeNum endpoints
 
 import { t3Fetch } from "./t3Fetch";
+import { t3ApiBaseUrl } from "./config";
 import { ApiError } from "./api-error";
 import {
   zNavigationResponse,
@@ -63,11 +64,6 @@ interface Typo3PageResponse {
 }
 
 // Production-ready API endpoint configuration
-const T3_BASE =
-  process.env.NEXT_PUBLIC_TYPO3_API_URL ||
-  process.env.T3_API_BASE_URL ||
-  "https://fahn-core-typo3.ddev.site";
-
 const API_ENDPOINTS = {
   fahndungen: 10000,
   navigation: 835,
@@ -81,7 +77,7 @@ function buildApiUrl(
   typeNum: number,
   params?: Record<string, unknown>
 ): string {
-  const url = new URL(T3_BASE);
+  const url = new URL(t3ApiBaseUrl);
   url.searchParams.set("type", String(typeNum));
 
   if (params) {
