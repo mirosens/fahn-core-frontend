@@ -112,7 +112,7 @@ export function ModernHeader({ showFilters = false }: ModernHeaderProps) {
                   pathname === "/" ? "text-primary" : "text-foreground"
                 }`}
               >
-                Start
+                Zur Startseite
               </Link>
               <Link
                 href="/fahndungen"

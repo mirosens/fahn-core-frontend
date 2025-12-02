@@ -28,11 +28,8 @@ export function SiteHeader() {
           className="hidden items-center gap-6 text-sm font-medium md:flex"
           aria-label="Hauptnavigation Fahndungsportal"
         >
-          <Link
-            href="/fahndungen"
-            className="hover:underline focus-visible:underline"
-          >
-            Fahndungen
+          <Link href="/" className="hover:underline focus-visible:underline">
+            Zur Startseite
           </Link>
           <Link
             href="/hinweise"

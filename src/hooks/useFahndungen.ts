@@ -46,6 +46,86 @@ export function useFahndungen(
     [searchTerm, fahndungsart, dienststelle]
   );
 
+  // Lade Fahndungen aus localStorage (provisorisch)
+  const loadLocalStorageFahndungen = (): FahndungItem[] => {
+    if (typeof window === "undefined") return [];
+
+    try {
+      const stored = localStorage.getItem("fahndungen");
+      if (!stored) return [];
+
+      const investigations = JSON.parse(stored) as Array<{
+        id: string;
+        title: string;
+        category: string;
+        description?: string;
+        sachverhalt?: string;
+        personenbeschreibung?: string;
+        caseNumber?: string;
+        office?: string;
+        delikt?: string;
+        eventTime?: string;
+        mainLocation?: { address?: string; lat?: number; lng?: number } | null;
+        mainImage?: string;
+        publishStatus?: string;
+        createdAt?: string;
+      }>;
+
+      // Konvertiere zu FahndungItem-Format
+      return investigations.map((inv) => {
+        // Mappe Kategorie zu type
+        const categoryToType: Record<string, FahndungItem["type"]> = {
+          WANTED_PERSON: "wanted",
+          MISSING_PERSON: "missing_person",
+          UNKNOWN_DEAD: "wanted",
+          STOLEN_GOODS: "wanted",
+        };
+
+        const type = categoryToType[inv.category] || "wanted";
+
+        // Erstelle Slug aus Titel
+        const slug = inv.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+
+        // Kombiniere Beschreibungen
+        const description = inv.description || inv.sachverhalt || "";
+        const summary =
+          description.length > 150
+            ? description.substring(0, 150) + "..."
+            : description;
+
+        return {
+          id: parseInt(inv.id.replace(/\D/g, "")) || Date.now(),
+          title: inv.title,
+          description: description,
+          summary: summary,
+          status: inv.publishStatus === "immediate" ? "active" : "active",
+          type: type,
+          location: inv.mainLocation?.address,
+          delikt: inv.delikt,
+          publishedAt: inv.createdAt || new Date().toISOString(),
+          slug: slug,
+          image: inv.mainImage
+            ? {
+                url: inv.mainImage,
+                alternative: inv.title,
+              }
+            : undefined,
+          isNew: true,
+          date: inv.eventTime,
+          kategorie: inv.category,
+          tatzeit: inv.eventTime,
+          dienststelle: inv.office,
+        } as FahndungItem;
+      });
+    } catch (err) {
+      console.error("[useFahndungen] Fehler beim Laden aus localStorage:", err);
+      return [];
+    }
+  };
+
   const fetchFahndungen = async () => {
     // Verhindere parallele Fetches
     if (isFetchingRef.current) {
@@ -72,21 +152,39 @@ export function useFahndungen(
         response.items
       );
 
-      setFahndungen(response.items || []);
+      // Lade auch Fahndungen aus localStorage und kombiniere sie
+      const localFahndungen = loadLocalStorageFahndungen();
+      console.log(
+        "[useFahndungen] Fahndungen aus localStorage:",
+        localFahndungen.length
+      );
+
+      // Kombiniere Typo3-Fahndungen mit localStorage-Fahndungen
+      // localStorage-Fahndungen haben Priorität (werden zuerst angezeigt)
+      const allFahndungen = [...localFahndungen, ...(response.items || [])];
+
+      setFahndungen(allFahndungen);
     } catch (err) {
       console.error("[useFahndungen] Fehler beim Laden der Fahndungen:", err);
       setError("Die Fahndungen konnten nicht geladen werden.");
 
-      // Bei Fehler Mock-Daten verwenden
-      try {
-        const { mockFahndungen } = await import("@/lib/mockFahndungen");
-        setFahndungen(mockFahndungen);
-      } catch (mockError) {
-        console.error(
-          "[useFahndungen] Fehler beim Laden der Mock-Daten:",
-          mockError
-        );
-        setFahndungen([]);
+      // Bei Fehler: Lade nur localStorage-Fahndungen
+      const localFahndungen = loadLocalStorageFahndungen();
+      if (localFahndungen.length > 0) {
+        setFahndungen(localFahndungen);
+        setError(null); // Kein Fehler, wenn localStorage-Fahndungen vorhanden sind
+      } else {
+        // Fallback: Mock-Daten verwenden
+        try {
+          const { mockFahndungen } = await import("@/lib/mockFahndungen");
+          setFahndungen(mockFahndungen);
+        } catch (mockError) {
+          console.error(
+            "[useFahndungen] Fehler beim Laden der Mock-Daten:",
+            mockError
+          );
+          setFahndungen([]);
+        }
       }
     } finally {
       setIsLoading(false);

@@ -19,12 +19,6 @@ export default function NotFound() {
           >
             Zur Startseite
           </Link>
-          <Link
-            href="/fahndungen"
-            className="inline-block rounded-md border border-border px-6 py-3 transition-colors hover:bg-accent"
-          >
-            Zu den Fahndungen
-          </Link>
         </div>
       </div>
     </div>

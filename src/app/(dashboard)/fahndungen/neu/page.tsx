@@ -19,6 +19,7 @@ import Step2Component from "@/components/fahndungen/wizard/steps/Step2Component"
 import Step3Component from "@/components/fahndungen/wizard/steps/Step3Component";
 import Step4Component from "@/components/fahndungen/wizard/steps/Step4Component";
 import Step5Component from "@/components/fahndungen/wizard/steps/Step5Component";
+import Step6Component from "@/components/fahndungen/wizard/steps/Step6Component";
 import LivePreviewCard from "@/components/fahndungen/wizard/preview/LivePreviewCard";
 import type { WizardData } from "@/components/fahndungen/wizard/types/WizardTypes";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -580,32 +581,28 @@ export default function NeueFahndungPage() {
         );
       case 6:
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">
-              Schritt 6: Zusammenfassung
-            </h2>
-            <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
-              <div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  Titel:
-                </span>
-                <p className="text-foreground">
-                  {wizardData.step1?.title || "-"}
-                </p>
-              </div>
-              <div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  Kategorie:
-                </span>
-                <p className="text-foreground">
-                  {wizardData.step1?.category || "-"}
-                </p>
-              </div>
-            </div>
-          </div>
+          wizardData.step1 &&
+          wizardData.step2 &&
+          wizardData.step3 &&
+          wizardData.step4 &&
+          wizardData.step5 && (
+            <Step6Component
+              data={wizardData as WizardData}
+              showPreview={showMobilePreview}
+              onTogglePreview={() => setShowMobilePreview(!showMobilePreview)}
+              showValidation={triedNext}
+            />
+          )
         );
       default:
-        return null;
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold">Unbekannter Schritt</h2>
+            <p className="text-muted-foreground">
+              Bitte wählen Sie einen gültigen Schritt aus.
+            </p>
+          </div>
+        );
     }
   };
 
