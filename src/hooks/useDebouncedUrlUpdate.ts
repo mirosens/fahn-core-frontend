@@ -49,8 +49,13 @@ export function useDebouncedUrlUpdate() {
 
         const url = urlParams.toString() ? `/?${urlParams.toString()}` : "/";
 
-        // Navigiere mit Router - normales Scrolling, keine Manipulation
-        router.replace(url);
+        // Ändere URL mit window.history.replaceState - das scrollt nicht
+        // Dann aktualisiere Next.js Router ohne Navigation
+        if (typeof window !== "undefined") {
+          window.history.replaceState({ ...window.history.state }, "", url);
+          // Trigger Router-Update ohne Navigation (kein Scroll)
+          router.refresh();
+        }
 
         // Reset Flag nach kurzer Verzögerung
         setTimeout(() => {
