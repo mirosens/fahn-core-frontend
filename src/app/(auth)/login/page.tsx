@@ -10,12 +10,19 @@ export const dynamic = "force-dynamic";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Demo-Admin-Daten automatisch vorausfüllen
+  const [email, setEmail] = useState("admin@ptls.de");
+  const [password, setPassword] = useState("admin123");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
+
+  // Demo-Daten erneut ausfüllen (falls geändert)
+  const fillDemoData = () => {
+    setEmail("admin@ptls.de");
+    setPassword("admin123");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,14 +121,36 @@ export default function LoginPage() {
             >
               {isLoading ? "Wird angemeldet..." : "Anmelden"}
             </button>
+
+            {/* Demo-Daten Button */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={fillDemoData}
+                  className="text-sm text-primary hover:text-primary/80 underline"
+                >
+                  Demo-Daten verwenden
+                </button>
+              </div>
+            )}
           </form>
 
           <div className="mt-6 rounded-lg border border-border/50 bg-muted/30 p-4">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mb-2">
               <strong>Hinweis:</strong> Dies ist eine provisorische
               Anmeldungsseite. Die finale Implementierung erfolgt über Typo3.
-              Für Testzwecke können Sie beliebige Daten eingeben.
             </p>
+            <div className="mt-2 rounded bg-primary/10 p-2">
+              <p className="text-xs font-medium text-foreground mb-1">
+                Demo-Zugangsdaten (automatisch ausgefüllt):
+              </p>
+              <p className="text-xs text-muted-foreground">
+                E-Mail: admin@ptls.de
+                <br />
+                Passwort: admin123
+              </p>
+            </div>
           </div>
         </div>
       </div>
