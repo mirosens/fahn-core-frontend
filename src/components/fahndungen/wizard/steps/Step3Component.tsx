@@ -282,12 +282,12 @@ const Step3Component: React.FC<Step3ComponentProps> = ({
       </div>
 
       {/* Schnellstart: Demo-Medien */}
-      <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 dark:border-blue-800 dark:from-blue-900/50 dark:to-blue-800/50 p-4">
+      <div className="rounded-xl border border-blue-200 bg-linear-to-r from-blue-50 to-blue-100 dark:border-blue-800 dark:from-blue-900/50 dark:to-blue-800/50 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <WandSparkles
               className={cn(
-                "flex-shrink-0 text-blue-600 dark:text-blue-400",
+                "shrink-0 text-blue-600 dark:text-blue-400",
                 isMobile ? "h-4 w-4" : "h-5 w-5"
               )}
             />
@@ -318,7 +318,7 @@ const Step3Component: React.FC<Step3ComponentProps> = ({
         className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/30"
       >
         <div className="flex items-start gap-3">
-          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
               Hinweise
@@ -335,7 +335,7 @@ const Step3Component: React.FC<Step3ComponentProps> = ({
               </li>
             </ul>
             <div className="mt-3 flex items-start gap-2 rounded-lg border-2 border-amber-400 bg-amber-100 p-3 dark:border-amber-600 dark:bg-amber-900/40">
-              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-700 dark:text-amber-300" />
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" />
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
                 ⚠️ Bitte beachten: Unbeteiligte sollten nicht zu sehen (besser:
                 nicht zu erkennen) sein.
@@ -349,7 +349,7 @@ const Step3Component: React.FC<Step3ComponentProps> = ({
       {showValidation && !hasMainImage && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
             <div>
               <h3 className="text-sm font-medium text-destructive">
                 Hauptbild erforderlich
@@ -366,7 +366,7 @@ const Step3Component: React.FC<Step3ComponentProps> = ({
       {hasMainImage && (
         <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
           <div className="flex items-start gap-3">
-            <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400" />
+            <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
             <div>
               <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
                 Medien erfolgreich ausgewählt
