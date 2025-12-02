@@ -96,15 +96,10 @@ export function FlipCard({
       }
     };
 
-    const handleScroll = () => {
-      if (isFlipped) flipCard();
-    };
-
     const cardElement = cardRef.current;
     if (cardElement) cardElement.addEventListener("keydown", handleKeyDown);
     if (isFlipped) {
       document.addEventListener("mousedown", handleClickOutside);
-      window.addEventListener("scroll", handleScroll, { passive: true });
     }
 
     return () => {
@@ -112,7 +107,6 @@ export function FlipCard({
         cardElement.removeEventListener("keydown", handleKeyDown);
       if (isFlipped) {
         document.removeEventListener("mousedown", handleClickOutside);
-        window.removeEventListener("scroll", handleScroll);
       }
     };
   }, [isFlipped, flipCard]);

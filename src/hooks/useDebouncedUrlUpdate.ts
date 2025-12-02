@@ -48,7 +48,9 @@ export function useDebouncedUrlUpdate() {
         }
 
         const url = urlParams.toString() ? `/?${urlParams.toString()}` : "/";
-        router.push(url);
+
+        // Navigiere mit Router - normales Scrolling, keine Manipulation
+        router.replace(url);
 
         // Reset Flag nach kurzer Verzögerung
         setTimeout(() => {
