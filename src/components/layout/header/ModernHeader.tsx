@@ -20,7 +20,7 @@ export default function ModernHeader() {
   const pathname = usePathname();
   const { searchTerm, fahndungsart, dienststelle } = useStableSearchParams();
 
-  const isFahndungenPage = pathname === "/fahndungen" || pathname === "/";
+  const isFahndungenPage = pathname === "/";
 
   // Prüfe ob aktive Filter vorhanden sind
   const hasActiveFilters = useMemo(() => {

@@ -27,8 +27,8 @@ export function PolizeiHeader() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pathname !== "/fahndungen") {
-      router.push(`/fahndungen?q=${encodeURIComponent(searchTerm)}`);
+    if (pathname !== "/") {
+      router.push(`/?q=${encodeURIComponent(searchTerm)}`);
     } else {
       const params = new URLSearchParams(searchParams.toString());
       params.set("q", searchTerm);
@@ -37,8 +37,8 @@ export function PolizeiHeader() {
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    if (pathname !== "/fahndungen") {
-      router.push(`/fahndungen?${key}=${value}`);
+    if (pathname !== "/") {
+      router.push(`/?${key}=${value}`);
       return;
     }
 
@@ -88,8 +88,8 @@ export function PolizeiHeader() {
             </div>
           </Link>
 
-          {/* Filter-System (nur auf Fahndungen-Seite sichtbar) */}
-          {pathname === "/fahndungen" && (
+          {/* Filter-System (nur auf Startseite sichtbar) */}
+          {pathname === "/" && (
             <div className="hidden lg:flex items-center gap-4 flex-1 max-w-3xl mx-8">
               {/* Suchfeld */}
               <form onSubmit={handleSearch} className="relative flex-1">

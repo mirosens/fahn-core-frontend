@@ -23,7 +23,7 @@ export function HeaderSearch() {
     (e: React.FormEvent) => {
       e.preventDefault();
       if (query.trim()) {
-        router.push(`/fahndungen?q=${encodeURIComponent(query.trim())}`);
+        router.push(`/?q=${encodeURIComponent(query.trim())}`);
         handleClose();
       }
     },

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { typo3Client } from "@/lib/typo3Client";
 import { ApiError } from "@/lib/api-error";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 
 interface ContentElement {
@@ -121,12 +122,6 @@ export default async function FahndungDetailPage({ params }: PageProps) {
                 </Link>
               </li>
               <li>→</li>
-              <li>
-                <Link href="/fahndungen" className="hover:text-primary">
-                  Fahndungen
-                </Link>
-              </li>
-              <li>→</li>
               <li className="text-foreground">Fehler</li>
             </ol>
           </nav>
@@ -157,7 +152,7 @@ export default async function FahndungDetailPage({ params }: PageProps) {
                 </p>
                 <div className="mt-4 flex space-x-3">
                   <Link
-                    href="/fahndungen"
+                    href="/"
                     className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
                     Zurück zur Übersicht
@@ -190,12 +185,6 @@ export default async function FahndungDetailPage({ params }: PageProps) {
             <li>
               <Link href="/" className="hover:text-primary">
                 Start
-              </Link>
-            </li>
-            <li>→</li>
-            <li>
-              <Link href="/fahndungen" className="hover:text-primary">
-                Fahndungen
               </Link>
             </li>
             <li>→</li>
@@ -240,13 +229,17 @@ export default async function FahndungDetailPage({ params }: PageProps) {
                         {/* Image-Element */}
                         {element.type === "image" && element.content && (
                           <figure className="not-prose">
-                            <img
-                              src={element.content.src || element.content.url}
+                            <Image
+                              src={
+                                element.content.src || element.content.url || ""
+                              }
                               alt={
                                 element.content.alt ||
                                 element.content.alternative ||
                                 ""
                               }
+                              width={800}
+                              height={600}
                               className="w-full rounded-lg border"
                             />
                             {(element.content.caption ||
@@ -336,7 +329,7 @@ export default async function FahndungDetailPage({ params }: PageProps) {
           {/* Navigation */}
           <nav className="flex justify-between border-t pt-6">
             <Link
-              href="/fahndungen"
+              href="/"
               className="inline-flex items-center rounded-md border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
             >
               ← Zurück zur Übersicht

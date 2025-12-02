@@ -57,9 +57,7 @@ export function FahndungenFilter({ className }: FilterProps) {
       });
 
       // Reset page when filters change
-      const url = params.toString()
-        ? `/fahndungen?${params.toString()}`
-        : "/fahndungen";
+      const url = params.toString() ? `/?${params.toString()}` : "/";
       router.push(url);
     },
     [router]
