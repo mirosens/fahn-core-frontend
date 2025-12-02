@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import Step1Component from "@/components/fahndungen/wizard/steps/Step1Component";
 import Step2Component from "@/components/fahndungen/wizard/steps/Step2Component";
 import Step3Component from "@/components/fahndungen/wizard/steps/Step3Component";
+import Step4Component from "@/components/fahndungen/wizard/steps/Step4Component";
 import LivePreviewCard from "@/components/fahndungen/wizard/preview/LivePreviewCard";
 import type { WizardData } from "@/components/fahndungen/wizard/types/WizardTypes";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -291,6 +292,10 @@ export default function NeueFahndungPage() {
       video: null,
       documents: [],
     },
+    step4: {
+      mainLocation: null,
+      additionalLocations: [],
+    },
   });
 
   const steps = [
@@ -531,10 +536,14 @@ export default function NeueFahndungPage() {
         );
       case 4:
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Schritt 4: Ort</h2>
-            <p className="text-muted-foreground">Wird noch implementiert...</p>
-          </div>
+          wizardData.step4 && (
+            <Step4Component
+              data={wizardData.step4}
+              onChange={(data) => updateStepData("step4", data)}
+              wizard={wizardData}
+              showValidation={triedNext}
+            />
+          )
         );
       case 5:
         return (
