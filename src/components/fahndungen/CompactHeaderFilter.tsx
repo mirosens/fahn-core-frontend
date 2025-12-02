@@ -1,28 +1,69 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Search, Calendar, X } from "lucide-react";
 import { PolizeipraesidienTile } from "./PolizeipraesidienTile";
+import { useStableSearchParams } from "@/hooks/useStableSearchParams";
+import { useDebouncedUrlUpdate } from "@/hooks/useDebouncedUrlUpdate";
 
 interface CompactHeaderFilterProps {
   className?: string;
 }
 
 export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  // Verwende stabilisierte searchParams
+  const {
+    searchTerm: urlSearch,
+    fahndungsart: urlFahndungsart,
+    dienststelle: urlDienststelle,
+  } = useStableSearchParams();
 
-  // Aktuelle Filter-Werte aus URL
-  const [searchTerm, setSearchTerm] = useState(
-    searchParams.get("q") || searchParams.get("search") || ""
-  );
-  const [fahndungsart, setFahndungsart] = useState(
-    searchParams.get("fahndungsart") || "alle"
-  );
-  const [dienststelle, setDienststelle] = useState(
-    searchParams.get("dienststelle") || "alle"
-  );
+  // Verwende debounced URL-Update
+  const { updateUrl, isUpdating } = useDebouncedUrlUpdate();
+
+  // Refs um zu tracken, ob wir gerade updaten (verhindert Loops)
+  const isUpdatingRef = useRef(false);
+  const prevUrlSearchRef = useRef(urlSearch);
+  const prevUrlFahndungsartRef = useRef(urlFahndungsart);
+  const prevUrlDienststelleRef = useRef(urlDienststelle);
+
+  // Lokaler State für die Eingabefelder (für kontrollierte Komponenten)
+  // Initialisiere direkt mit URL-Parametern
+  const [searchTerm, setSearchTerm] = useState(urlSearch);
+  const [fahndungsart, setFahndungsart] = useState(urlFahndungsart || "alle");
+  const [dienststelle, setDienststelle] = useState(urlDienststelle || "alle");
+
+  // Synchronisiere lokalen State mit URL-Parametern (nur wenn sich URL geändert hat)
+  // Verwende setTimeout um setState außerhalb des synchronen Effect-Kontexts zu machen
+  useEffect(() => {
+    if (isUpdating() || isUpdatingRef.current) return;
+
+    const hasSearchChanged = prevUrlSearchRef.current !== urlSearch;
+    const hasFahndungsartChanged =
+      prevUrlFahndungsartRef.current !== urlFahndungsart;
+    const hasDienststelleChanged =
+      prevUrlDienststelleRef.current !== urlDienststelle;
+
+    if (hasSearchChanged || hasFahndungsartChanged || hasDienststelleChanged) {
+      // Aktualisiere Refs
+      prevUrlSearchRef.current = urlSearch;
+      prevUrlFahndungsartRef.current = urlFahndungsart;
+      prevUrlDienststelleRef.current = urlDienststelle;
+
+      // Verwende setTimeout um setState asynchron zu machen
+      setTimeout(() => {
+        if (hasSearchChanged) {
+          setSearchTerm(urlSearch);
+        }
+        if (hasFahndungsartChanged) {
+          setFahndungsart(urlFahndungsart || "alle");
+        }
+        if (hasDienststelleChanged) {
+          setDienststelle(urlDienststelle || "alle");
+        }
+      }, 0);
+    }
+  }, [urlSearch, urlFahndungsart, urlDienststelle, isUpdating]);
 
   // Filter-Optionen - genau wie im Referenzprojekt
   const fahndungsartOptions = [
@@ -50,76 +91,41 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
     rv: "ravensburg",
   };
 
-  // URL aktualisieren
-  const updateUrl = useCallback(() => {
-    const params = new URLSearchParams();
-
-    if (searchTerm.trim()) {
-      params.set("q", searchTerm.trim());
-    }
-    if (fahndungsart && fahndungsart !== "alle") {
-      params.set("fahndungsart", fahndungsart);
-    }
-    if (dienststelle && dienststelle !== "alle") {
-      params.set("dienststelle", dienststelle);
-    }
-
-    const url = params.toString() ? `/?${params.toString()}` : "/";
-    router.push(url);
-  }, [router, searchTerm, fahndungsart, dienststelle]);
-
-  // URL-Parameter beim Laden synchronisieren
-  useEffect(() => {
-    const urlSearch = searchParams.get("q") || searchParams.get("search") || "";
-    const urlFahndungsart = searchParams.get("fahndungsart") || "alle";
-    const urlDienststelle = searchParams.get("dienststelle") || "alle";
-
-    // Verwende setTimeout, um setState außerhalb des synchronen Effekt-Bodies aufzurufen
-    setTimeout(() => {
-      setSearchTerm(urlSearch);
-      setFahndungsart(urlFahndungsart);
-      setDienststelle(urlDienststelle);
-    }, 0);
-  }, [searchParams]);
+  // URL aktualisieren mit Debouncing
+  const handleUrlUpdate = useCallback(() => {
+    updateUrl({
+      searchTerm,
+      fahndungsart,
+      dienststelle,
+    });
+  }, [updateUrl, searchTerm, fahndungsart, dienststelle]);
 
   const handleFahndungsartChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setFahndungsart(e.target.value);
-      // Sofort URL aktualisieren
-      const params = new URLSearchParams();
-      if (searchTerm.trim()) {
-        params.set("q", searchTerm.trim());
-      }
-      if (e.target.value !== "alle") {
-        params.set("fahndungsart", e.target.value);
-      }
-      if (dienststelle !== "alle") {
-        params.set("dienststelle", dienststelle);
-      }
-      const url = params.toString() ? `/?${params.toString()}` : "/";
-      router.push(url);
+      const newValue = e.target.value;
+      setFahndungsart(newValue);
+      // URL mit Debouncing aktualisieren
+      updateUrl({
+        searchTerm,
+        fahndungsart: newValue,
+        dienststelle,
+      });
     },
-    [router, searchTerm, dienststelle]
+    [updateUrl, searchTerm, dienststelle]
   );
 
   const handleDienststelleChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setDienststelle(e.target.value);
-      // Sofort URL aktualisieren
-      const params = new URLSearchParams();
-      if (searchTerm.trim()) {
-        params.set("q", searchTerm.trim());
-      }
-      if (fahndungsart !== "alle") {
-        params.set("fahndungsart", fahndungsart);
-      }
-      if (e.target.value !== "alle") {
-        params.set("dienststelle", e.target.value);
-      }
-      const url = params.toString() ? `/?${params.toString()}` : "/";
-      router.push(url);
+      const newValue = e.target.value;
+      setDienststelle(newValue);
+      // URL mit Debouncing aktualisieren
+      updateUrl({
+        searchTerm,
+        fahndungsart,
+        dienststelle: newValue,
+      });
     },
-    [router, searchTerm, fahndungsart]
+    [updateUrl, searchTerm, fahndungsart]
   );
 
   return (
@@ -136,11 +142,11 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
           placeholder="Fahndungssuche..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onBlur={updateUrl}
+          onBlur={handleUrlUpdate}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              updateUrl();
+              handleUrlUpdate();
             }
           }}
           className="h-9 pl-8 pr-10 text-sm w-full rounded-md border border-border bg-background text-foreground placeholder:text-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 [&::-webkit-search-cancel-button]:hidden [&::-ms-clear]:hidden"
@@ -153,7 +159,11 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
           <button
             onClick={() => {
               setSearchTerm("");
-              updateUrl();
+              updateUrl({
+                searchTerm: "",
+                fahndungsart,
+                dienststelle,
+              });
             }}
             className="absolute right-10 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground z-10"
             aria-label="Suche löschen"

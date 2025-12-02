@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
+import { useStableSearchParams } from "@/hooks/useStableSearchParams";
 import FilterPanel from "./FilterPanel";
 import { FilterIcon } from "@/components/ui/FilterIcon";
 import DesktopHeader from "./DesktopHeader";
@@ -17,21 +18,18 @@ export default function ModernHeader() {
 
   const { headerRef, spacerRef } = useScrollDetection();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { searchTerm, fahndungsart, dienststelle } = useStableSearchParams();
 
   const isFahndungenPage = pathname === "/fahndungen" || pathname === "/";
 
   // Prüfe ob aktive Filter vorhanden sind
   const hasActiveFilters = useMemo(() => {
     return !!(
-      searchParams.get("q") ||
-      searchParams.get("search") ||
-      (searchParams.get("fahndungsart") &&
-        searchParams.get("fahndungsart") !== "alle") ||
-      (searchParams.get("dienststelle") &&
-        searchParams.get("dienststelle") !== "alle")
+      searchTerm ||
+      (fahndungsart && fahndungsart !== "alle") ||
+      (dienststelle && dienststelle !== "alle")
     );
-  }, [searchParams]);
+  }, [searchTerm, fahndungsart, dienststelle]);
 
   // Höre auf Ergebnis-Count-Updates
   useEffect(() => {

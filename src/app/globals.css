@@ -177,9 +177,14 @@
     border-color: var(--color-border);
   }
 
+  html {
+    overflow-y: auto;
+  }
+
   body {
     @apply bg-bg text-fg antialiased;
     font-family: var(--font-sans);
+    overflow-y: auto;
   }
 }
 
@@ -205,15 +210,14 @@
 
 /* Layout-Shell */
 .layout-shell {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .layout-main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 /* Globale Fokus-Styles nach WCAG 2.2 */

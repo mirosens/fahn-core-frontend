@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/glassmorphism-header.css";
@@ -31,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-bg text-fg antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-bg text-fg antialiased`}
         suppressHydrationWarning
       >
         <a
@@ -48,13 +47,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="layout-shell">
-            <Suspense fallback={<div className="h-20" />}>
-              <ModernHeader />
-            </Suspense>
+            <ModernHeader />
 
             <main
               id="main-content"
-              className="layout-main min-h-screen"
+              className="layout-main"
               role="main"
               aria-label="Hauptinhalt Fahndungsportal"
             >

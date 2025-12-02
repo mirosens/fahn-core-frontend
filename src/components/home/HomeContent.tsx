@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
-import { typo3Client, type FahndungItem } from "@/lib/typo3Client";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { FahndungModal } from "@/components/fahndungen/FahndungModal";
 import { ModernHeroSection } from "./ModernHeroSection";
 import { FahndungenGridWithPagination } from "@/components/fahndungen/FahndungenGridWithPagination";
@@ -10,36 +8,43 @@ import {
   ViewModeDropdown,
   type ViewMode,
 } from "@/components/ui/ViewModeDropdown";
+import { useFahndungen } from "@/hooks/useFahndungen";
+import { useStableSearchParams } from "@/hooks/useStableSearchParams";
+import type { FahndungItem } from "@/lib/typo3Client";
+
+// Helper function to get initial viewMode from localStorage (client-side only)
+function getInitialViewMode(): ViewMode {
+  if (typeof window === "undefined") return "grid-4";
+  const savedViewMode = localStorage.getItem(
+    "fahndung-view-mode"
+  ) as ViewMode | null;
+  if (
+    savedViewMode &&
+    (savedViewMode === "grid-3" || savedViewMode === "grid-4")
+  ) {
+    return savedViewMode;
+  }
+  return "grid-4";
+}
 
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false);
-  const [fahndungen, setFahndungen] = useState<FahndungItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedFahndung, setSelectedFahndung] = useState<FahndungItem | null>(
     null
   );
-  const [viewMode, setViewMode] = useState<ViewMode>("grid-4");
-  const searchParams = useSearchParams();
+  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
+  const lastCountRef = useRef<number | null>(null);
 
-  // Hydration-Sicherheit
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Verwende Custom Hooks für stabilisierte searchParams und Data Fetching
+  const { searchTerm, fahndungsart, dienststelle } = useStableSearchParams();
+  const { fahndungen, isLoading, error } = useFahndungen({ enabled: true });
 
-  // Lade viewMode aus localStorage
+  // Hydration-Sicherheit - verwende setTimeout um setState außerhalb des Effects zu machen
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedViewMode = localStorage.getItem(
-        "fahndung-view-mode"
-      ) as ViewMode | null;
-      if (
-        savedViewMode &&
-        (savedViewMode === "grid-3" || savedViewMode === "grid-4")
-      ) {
-        setViewMode(savedViewMode);
-      }
-    }
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Speichere viewMode in localStorage
@@ -52,42 +57,6 @@ export default function HomeContent() {
 
   // Items pro Seite basierend auf Grid-Modus
   const itemsPerPage = viewMode === "grid-4" ? 8 : 6;
-
-  // Lade Fahndungen
-  useEffect(() => {
-    if (!mounted) return;
-
-    const fetchFahndungen = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await typo3Client.getFahndungen(searchParams);
-        console.log(
-          "[HomeContent] Geladene Fahndungen:",
-          response.items.length,
-          response.items
-        );
-        // Stelle sicher, dass die Fahndungen gesetzt werden
-        setFahndungen(response.items || []);
-      } catch (err) {
-        console.error("Fehler beim Laden der Fahndungen:", err);
-        setError("Die Fahndungen konnten nicht geladen werden.");
-        // Bei Fehler Mock-Daten verwenden
-        const { mockFahndungen } = await import("@/lib/mockFahndungen");
-        setFahndungen(mockFahndungen);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void fetchFahndungen();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, searchParams.toString()]);
-
-  // Extrahiere Filter-Parameter aus searchParams (außerhalb von useMemo für bessere Performance)
-  const searchTerm = searchParams.get("q") || searchParams.get("search");
-  const fahndungsart = searchParams.get("fahndungsart");
-  const dienststelle = searchParams.get("dienststelle");
 
   // Gefilterte Fahndungen basierend auf URL-Parametern
   const filteredFahndungen = useMemo(() => {
@@ -273,15 +242,19 @@ export default function HomeContent() {
     dienststelle,
   ]);
 
-  // Dispatch Ergebnisanzahl-Update Event
+  // Dispatch Ergebnisanzahl-Update Event (nur wenn sich der Wert geändert hat)
   useEffect(() => {
-    if (typeof window !== "undefined" && mounted) {
-      window.dispatchEvent(
-        new CustomEvent("fahndung-result-count-update", {
-          detail: { count: filteredFahndungen.length },
-        })
-      );
-    }
+    if (typeof window === "undefined" || !mounted) return;
+
+    const currentCount = filteredFahndungen.length;
+    if (lastCountRef.current === currentCount) return;
+
+    lastCountRef.current = currentCount;
+    window.dispatchEvent(
+      new CustomEvent("fahndung-result-count-update", {
+        detail: { count: currentCount },
+      })
+    );
   }, [filteredFahndungen.length, mounted]);
 
   if (!mounted) {
