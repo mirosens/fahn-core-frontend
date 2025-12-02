@@ -157,11 +157,7 @@ export function FlipCard({
             {/* Logo oben links */}
             <div className="absolute left-1 top-1 z-20">
               <Image
-                src={
-                  currentTheme === "dark"
-                    ? "/images/logo polizei/logo--dark.svg"
-                    : "/images/logo polizei/logo--light.svg"
-                }
+                src="/logo.svg"
                 alt="Logo"
                 width={32}
                 height={32}
