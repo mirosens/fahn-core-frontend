@@ -400,7 +400,7 @@ const Step6Component: React.FC<Step6ComponentProps> = ({
       {/* Hinweis: Provisorische Speicherung */}
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/30">
         <div className="flex items-start gap-3">
-          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
           <div className="flex-1">
             <p
               className={cn(
