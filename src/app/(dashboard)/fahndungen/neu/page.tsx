@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Step1Component from "@/components/fahndungen/wizard/steps/Step1Component";
+import Step2Component from "@/components/fahndungen/wizard/steps/Step2Component";
+import Step3Component from "@/components/fahndungen/wizard/steps/Step3Component";
 import LivePreviewCard from "@/components/fahndungen/wizard/preview/LivePreviewCard";
 import type { WizardData } from "@/components/fahndungen/wizard/types/WizardTypes";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -200,61 +202,65 @@ const ResponsiveProgressIndicator = ({
   }
 
   // Desktop Progress Indicator
-  return (
-    <div className="mb-8">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-          Fortschritt: {currentStep} von {steps.length} Schritten
-        </span>
-        <span className="text-sm text-muted-foreground dark:text-muted-foreground">
-          {Math.round((currentStep / steps.length) * 100)}% abgeschlossen
-        </span>
-      </div>
-      <div className="flex items-center space-x-4">
-        {steps.map((step, index) => (
-          <div key={step.id} className="flex items-center">
-            <div
-              className={`flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 ${
-                currentStep >= step.id
-                  ? "border-blue-500 bg-blue-500 text-white"
-                  : "border-border bg-white text-muted-foreground dark:border-border dark:bg-muted"
-              }`}
-              style={{
-                height: "44px",
-                width: "44px",
-                minHeight: "44px",
-                minWidth: "44px",
-              }}
-            >
-              {currentStep > step.id ? (
-                <Check className="h-5 w-5" />
-              ) : (
-                <step.icon className="h-5 w-5" />
+  if (isDesktop) {
+    return (
+      <div className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+            Fortschritt: {currentStep} von {steps.length} Schritten
+          </span>
+          <span className="text-sm text-muted-foreground dark:text-muted-foreground">
+            {Math.round((currentStep / steps.length) * 100)}% abgeschlossen
+          </span>
+        </div>
+        <div className="flex items-center space-x-4">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex items-center">
+              <div
+                className={`flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 ${
+                  currentStep >= step.id
+                    ? "border-blue-500 bg-blue-500 text-white"
+                    : "border-border bg-white text-muted-foreground dark:border-border dark:bg-muted"
+                }`}
+                style={{
+                  height: "44px",
+                  width: "44px",
+                  minHeight: "44px",
+                  minWidth: "44px",
+                }}
+              >
+                {currentStep > step.id ? (
+                  <Check className="h-5 w-5" />
+                ) : (
+                  <step.icon className="h-5 w-5" />
+                )}
+              </div>
+              <span
+                className={`ml-2 text-sm font-medium ${
+                  currentStep >= step.id
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {step.label}
+              </span>
+              {index < steps.length - 1 && (
+                <div
+                  className={`mx-4 h-1 w-16 ${
+                    currentStep > step.id
+                      ? "bg-blue-500"
+                      : "bg-muted dark:bg-muted"
+                  }`}
+                />
               )}
             </div>
-            <span
-              className={`ml-2 text-sm font-medium ${
-                currentStep >= step.id
-                  ? "text-blue-600 dark:text-blue-400"
-                  : "text-muted-foreground"
-              }`}
-            >
-              {step.label}
-            </span>
-            {index < steps.length - 1 && (
-              <div
-                className={`mx-4 h-1 w-16 ${
-                  currentStep > step.id
-                    ? "bg-blue-500"
-                    : "bg-muted dark:bg-muted"
-                }`}
-              />
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 };
 
 export default function NeueFahndungPage() {
@@ -276,6 +282,14 @@ export default function NeueFahndungPage() {
       caseNumber: "",
       office: "",
       eventTime: "",
+    },
+    step2: {
+      sachverhalt: "",
+      personenbeschreibung: "",
+    },
+    step3: {
+      video: null,
+      documents: [],
     },
   });
 
@@ -495,17 +509,25 @@ export default function NeueFahndungPage() {
         );
       case 2:
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Schritt 2: Beschreibung</h2>
-            <p className="text-muted-foreground">Wird noch implementiert...</p>
-          </div>
+          wizardData.step2 && (
+            <Step2Component
+              data={wizardData.step2}
+              onChange={(data) => updateStepData("step2", data)}
+              wizard={wizardData}
+              showValidation={triedNext}
+            />
+          )
         );
       case 3:
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Schritt 3: Medien</h2>
-            <p className="text-muted-foreground">Wird noch implementiert...</p>
-          </div>
+          wizardData.step3 && (
+            <Step3Component
+              data={wizardData.step3}
+              onChange={(data) => updateStepData("step3", data)}
+              wizard={wizardData}
+              showValidation={triedNext}
+            />
+          )
         );
       case 4:
         return (
