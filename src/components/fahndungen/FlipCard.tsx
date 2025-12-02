@@ -168,8 +168,14 @@ export function FlipCard({
                 />
               </div>
             ) : (
-              <div className="flex items-center justify-center h-full bg-gray-200 dark:bg-gray-700">
-                <span className="text-gray-400">Kein Bild verfügbar</span>
+              <div className="relative h-full w-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                <Image
+                  src="/platzhalterbild.svg"
+                  alt="Platzhalterbild"
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               </div>
             )}
 
