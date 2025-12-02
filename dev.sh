@@ -88,8 +88,8 @@ else
   SKIP_HEALTH_CHECK=false
 fi
 
-# Prüfe ob DDEV bereits läuft
-if ddev describe > /dev/null 2>&1; then
+# Prüfe ob DDEV bereits läuft (prüfe ob Container wirklich laufen)
+if ddev describe > /dev/null 2>&1 && docker ps --filter "name=ddev-fahn-core-typo3-web" --format "{{.Status}}" | grep -q "Up"; then
   echo "✅ DDEV läuft bereits"
 else
   # Starte DDEV (startet alle Container)
