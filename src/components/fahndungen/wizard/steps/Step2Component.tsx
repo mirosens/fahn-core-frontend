@@ -89,11 +89,11 @@ const Step2Component: React.FC<Step2ComponentProps> = ({
       </div>
 
       {/* Schnellstart: Auto-Ausfüllen für beide Felder */}
-      <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 dark:border-blue-800 dark:from-blue-900/50 dark:to-blue-800/50 p-4">
+      <div className="rounded-xl border border-blue-200 bg-linear-to-r from-blue-50 to-blue-100 dark:border-blue-800 dark:from-blue-900/50 dark:to-blue-800/50 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <WandSparkles
-              className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} flex-shrink-0 text-blue-600 dark:text-blue-400`}
+              className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} shrink-0 text-blue-600 dark:text-blue-400`}
             />
             <span
               className={`${isMobile ? "text-xs" : "text-sm"} font-semibold text-blue-900 dark:text-blue-100`}

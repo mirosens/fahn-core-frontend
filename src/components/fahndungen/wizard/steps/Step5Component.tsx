@@ -266,7 +266,7 @@ const Step5Component: React.FC<Step5ComponentProps> = ({
           <div className="flex items-center gap-2">
             <WandSparkles
               className={cn(
-                "flex-shrink-0 text-blue-600 dark:text-blue-400",
+                "shrink-0 text-blue-600 dark:text-blue-400",
                 isMobile ? "h-4 w-4" : "h-5 w-5"
               )}
             />
@@ -378,7 +378,7 @@ const Step5Component: React.FC<Step5ComponentProps> = ({
         <div className="flex items-start gap-3">
           <Info
             className={cn(
-              "mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400",
+              "mt-0.5 shrink-0 text-blue-600 dark:text-blue-400",
               isMobile ? "h-4 w-4" : "h-5 w-5"
             )}
           />
@@ -1132,7 +1132,7 @@ const Step5Component: React.FC<Step5ComponentProps> = ({
                     >
                       <Info
                         className={cn(
-                          "mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400",
+                          "mt-0.5 shrink-0 text-blue-600 dark:text-blue-400",
                           isMobile ? "h-3.5 w-3.5" : "h-4 w-4"
                         )}
                       />
@@ -1393,7 +1393,7 @@ const Step5Component: React.FC<Step5ComponentProps> = ({
                     {!heroSettings.validUntil &&
                       heroSettings.displayMode === "time_limited" && (
                         <div className="mt-2 flex items-start gap-2 text-red-600 dark:text-red-400">
-                          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                           <span className="text-xs">
                             Bitte wählen Sie ein Enddatum für die zeitlich
                             begrenzte Anzeige
@@ -1413,7 +1413,7 @@ const Step5Component: React.FC<Step5ComponentProps> = ({
                   <div className="flex items-start gap-2">
                     <AlertCircle
                       className={cn(
-                        "mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400",
+                        "mt-0.5 shrink-0 text-amber-600 dark:text-amber-400",
                         isMobile ? "h-3.5 w-3.5" : "h-4 w-4"
                       )}
                     />

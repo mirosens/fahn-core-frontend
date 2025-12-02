@@ -8,6 +8,43 @@ interface FilterProps {
   className?: string;
 }
 
+// Filter-Chip Komponente (außerhalb der Komponente definiert)
+const FilterChip = ({
+  label,
+  onRemove,
+  color = "blue",
+}: {
+  label: string;
+  onRemove: () => void;
+  color?: string;
+}) => (
+  <span
+    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-colors
+      ${
+        color === "red"
+          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+          : color === "blue"
+            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+            : color === "green"
+              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+              : color === "gray"
+                ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+                : color === "orange"
+                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
+                  : "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+      }`}
+  >
+    {label}
+    <button
+      onClick={onRemove}
+      className="ml-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10"
+      aria-label={`${label} entfernen`}
+    >
+      ✕
+    </button>
+  </span>
+);
+
 export function FahndungenFilter({ className }: FilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -74,9 +111,59 @@ export function FahndungenFilter({ className }: FilterProps) {
 
   const hasActiveFilters = Object.values(filters).some(Boolean);
 
+  // Filter zurücksetzen
+  const resetFilters = useCallback(() => {
+    const newFilters = {
+      status: "",
+      region: "",
+      delikt: "",
+    };
+    setFilters(newFilters);
+    updateUrl(newFilters);
+  }, [updateUrl]);
+
   return (
-    <div className={`space-y-3 ${className}`}>
-      {/* Kompakte Filter-Steuerungen */}
+    <div className={`space-y-4 ${className}`}>
+      {/* Reset Button */}
+      {hasActiveFilters && (
+        <div className="flex items-center justify-between">
+          <button
+            onClick={resetFilters}
+            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+          >
+            Alle Filter zurücksetzen
+          </button>
+        </div>
+      )}
+
+      {/* Aktive Filter Chips */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2">
+          {filters.status && (
+            <FilterChip
+              label={`Status: ${filterOptions.status.find((o) => o.value === filters.status)?.label}`}
+              onRemove={() => handleFilterChange("status", "")}
+              color="blue"
+            />
+          )}
+          {filters.region && (
+            <FilterChip
+              label={`Region: ${filterOptions.region.find((o) => o.value === filters.region)?.label}`}
+              onRemove={() => handleFilterChange("region", "")}
+              color="green"
+            />
+          )}
+          {filters.delikt && (
+            <FilterChip
+              label={`Delikt: ${filterOptions.delikt.find((o) => o.value === filters.delikt)?.label}`}
+              onRemove={() => handleFilterChange("delikt", "")}
+              color="purple"
+            />
+          )}
+        </div>
+      )}
+
+      {/* Filter-Steuerungen */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Status Filter */}
         <div>
@@ -156,77 +243,6 @@ export function FahndungenFilter({ className }: FilterProps) {
           </p>
         </div>
       </div>
-
-      {/* Aktive Filter Anzeige */}
-      {hasActiveFilters && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Aktive Filter:
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {filters.status && (
-              <span
-                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
-                role="status"
-                aria-label={`Aktueller Status-Filter: ${filterOptions.status.find((o) => o.value === filters.status)?.label}`}
-              >
-                Status:{" "}
-                {
-                  filterOptions.status.find((o) => o.value === filters.status)
-                    ?.label
-                }
-                <button
-                  onClick={() => handleFilterChange("status", "")}
-                  className="ml-1 hover:text-primary/80 focus:outline-none focus:ring-1 focus:ring-primary rounded"
-                  aria-label="Status-Filter entfernen"
-                >
-                  ✕
-                </button>
-              </span>
-            )}
-            {filters.region && (
-              <span
-                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
-                role="status"
-                aria-label={`Aktuelle Region-Filter: ${filterOptions.region.find((o) => o.value === filters.region)?.label}`}
-              >
-                Region:{" "}
-                {
-                  filterOptions.region.find((o) => o.value === filters.region)
-                    ?.label
-                }
-                <button
-                  onClick={() => handleFilterChange("region", "")}
-                  className="ml-1 hover:text-primary/80 focus:outline-none focus:ring-1 focus:ring-primary rounded"
-                  aria-label="Region-Filter entfernen"
-                >
-                  ✕
-                </button>
-              </span>
-            )}
-            {filters.delikt && (
-              <span
-                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
-                role="status"
-                aria-label={`Aktueller Delikt-Filter: ${filterOptions.delikt.find((o) => o.value === filters.delikt)?.label}`}
-              >
-                Delikt:{" "}
-                {
-                  filterOptions.delikt.find((o) => o.value === filters.delikt)
-                    ?.label
-                }
-                <button
-                  onClick={() => handleFilterChange("delikt", "")}
-                  className="ml-1 hover:text-primary/80 focus:outline-none focus:ring-1 focus:ring-primary rounded"
-                  aria-label="Delikt-Filter entfernen"
-                >
-                  ✕
-                </button>
-              </span>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

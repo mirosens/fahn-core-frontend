@@ -22,7 +22,7 @@ export default function ModernHeader() {
 
   const isFahndungenPage = pathname === "/";
 
-  // Prüfe ob aktive Filter vorhanden sind
+  // Prüfe ob aktive Filter vorhanden sind - erweitert um alle Filter-Typen
   const hasActiveFilters = useMemo(() => {
     return !!(
       searchTerm ||
@@ -95,7 +95,9 @@ export default function ModernHeader() {
           ${
             isMobile
               ? "h-14"
-              : "h-20 transition-all duration-300 ease-out [&.scrolled]:h-16"
+              : hasActiveFilters
+                ? "h-auto min-h-20 transition-all duration-300 ease-out [&.scrolled]:min-h-16"
+                : "h-20 transition-all duration-300 ease-out [&.scrolled]:h-16"
           }
         `}
         role="banner"
@@ -105,7 +107,7 @@ export default function ModernHeader() {
         <div
           className={`
           glass-header glass-header-container mx-auto
-          h-full max-w-[1273px]
+          ${hasActiveFilters && !isMobile ? "min-h-full" : "h-full"} max-w-[1273px]
           ${
             isMobile
               ? "mt-0 rounded-none"
@@ -113,7 +115,9 @@ export default function ModernHeader() {
           }
         `}
         >
-          <div className="h-full px-4 sm:px-6 lg:px-8">
+          <div
+            className={`${hasActiveFilters && !isMobile ? "py-4" : "h-full"} px-4 sm:px-6 lg:px-8`}
+          >
             {/* Erste Zeile: Logo, Filter, Actions */}
             <div className="relative flex h-full items-center">
               {/* Logo */}
@@ -124,7 +128,7 @@ export default function ModernHeader() {
               {/* Desktop: Filter zwischen Logo und Actions - inline im Header */}
               {!isMobile && isFahndungenPage && (
                 <div className="flex-1 flex items-center justify-center min-w-0 mx-4 sm:mx-6 lg:mx-8">
-                  <CompactHeaderFilter />
+                  <CompactHeaderFilter className="header-filter" />
                 </div>
               )}
 
@@ -189,6 +193,13 @@ export default function ModernHeader() {
                 </div>
               </div>
             </div>
+
+            {/* Zweite Zeile: FilterChips und Reset-Button - nur Desktop wenn Filter aktiv */}
+            {hasActiveFilters && !isMobile && (
+              <div className="mt-3 pt-3 border-t border-border/30">
+                <CompactHeaderFilter className="chips-only-mode" />
+              </div>
+            )}
           </div>
         </div>
       </header>

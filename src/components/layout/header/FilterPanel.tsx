@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { FahndungenFilter } from "@/components/fahndungen/FahndungenFilter";
+import { MobileFilterTabs } from "@/components/fahndungen/MobileFilterTabs";
 
 interface FilterPanelProps {
   isOpen: boolean;
@@ -121,7 +121,7 @@ export default function FilterPanel({
             </svg>
           </button>
         </div>
-        <FahndungenFilter />
+        <MobileFilterTabs onClose={onClose} className="mobile-filter-panel" />
       </div>
     </div>
   );
