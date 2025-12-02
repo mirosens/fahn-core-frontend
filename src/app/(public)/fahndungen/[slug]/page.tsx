@@ -9,20 +9,23 @@ import Link from "next/link";
 export const revalidate = 300;
 
 interface FahndungDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default async function FahndungDetailPage({
   params,
 }: FahndungDetailPageProps) {
-  const { id } = await params;
+  const { slug } = await params;
 
   let item;
   try {
-    item = await typo3Client.getFahndungById(id, {
+    // Fetch via slug. For revalidation, we remove the specific tag to avoid
+    // slug/id mismatch issues. The page will revalidate via ISR or when the
+    // "fahndungen:list" tag is cleared.
+    item = await typo3Client.getFahndungById(slug, {
       cache: "force-cache",
       next: {
-        tags: [`fahndung:${id}`, "fahndungen:list"],
+        tags: ["fahndungen:list"],
       },
     });
   } catch (error) {

@@ -4,13 +4,13 @@
 export const dynamic = "force-dynamic";
 
 interface FahndungEditPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default async function FahndungEditPage({
   params,
 }: FahndungEditPageProps) {
-  const { id } = await params;
+  const { slug } = await params;
 
   // TODO: Fahndung laden und Bearbeitungsformular anzeigen
   // TODO: Implementierung in späterer Phase
@@ -20,7 +20,7 @@ export default async function FahndungEditPage({
       <h1 className="mb-6 text-3xl font-bold">Fahndung bearbeiten</h1>
       <div className="mx-auto max-w-2xl rounded-lg border bg-card p-6 shadow-sm">
         <p className="mb-4 text-muted-foreground">
-          Bearbeitung der Fahndung: <strong>{id}</strong>
+          Bearbeitung der Fahndung: <strong>{slug}</strong>
         </p>
         <p className="text-muted-foreground">
           Das Bearbeitungsformular wird in einer späteren Phase implementiert.

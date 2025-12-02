@@ -5,7 +5,7 @@ import { z } from "zod";
 export const zFahndungItem = z.object({
   id: z.string(),
   title: z.string(),
-  slug: z.string().optional(),
+  slug: z.string(),
   status: z.enum(["active", "archived", "solved"]).optional(),
   publishedAt: z.string().datetime().optional(),
   description: z.string().optional(),

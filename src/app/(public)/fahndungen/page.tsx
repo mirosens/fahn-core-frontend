@@ -78,7 +78,7 @@ export default async function FahndungenPage() {
             >
               <h2 className="mb-2 text-xl font-semibold">
                 <Link
-                  href={`/fahndungen/${item.id}`}
+                  href={`/fahndungen/${item.slug}`}
                   className="hover:underline"
                 >
                   {item.title}
@@ -96,7 +96,7 @@ export default async function FahndungenPage() {
                   </span>
                 )}
                 <Link
-                  href={`/fahndungen/${item.id}`}
+                  href={`/fahndungen/${item.slug}`}
                   className="text-primary hover:underline"
                 >
                   Details anzeigen →

@@ -1,4 +1,5 @@
 // src/lib/typo3Client.ts
+// Production-ready API client using reliable typeNum endpoints
 
 import { t3Fetch } from "./t3Fetch";
 import { ApiError } from "./api-error";
@@ -13,12 +14,48 @@ import {
 import { zPageResponse, type PageResponse } from "@/types/page";
 import type { ZodType } from "zod";
 
+// Production-ready API endpoint configuration
+const T3_BASE =
+  process.env.NEXT_PUBLIC_TYPO3_API_URL ||
+  process.env.T3_API_BASE_URL ||
+  "https://fahn-core-typo3.ddev.site";
+
+const API_ENDPOINTS = {
+  fahndungen: 10000,
+  navigation: 835,
+  health: 8999,
+  page: 9999,
+  error: 838,
+} as const;
+
+// Helper function to build TYPO3 typeNum URLs
+function buildApiUrl(
+  typeNum: number,
+  params?: Record<string, unknown>
+): string {
+  const url = new URL(T3_BASE);
+  url.searchParams.set("type", String(typeNum));
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        url.searchParams.set(key, String(value));
+      }
+    });
+  }
+
+  return url.toString();
+}
+
 export const typo3Client = {
   async getPage(
     slug: string,
     options?: { cache?: RequestCache; next?: { tags?: string[] } }
   ): Promise<PageResponse> {
-    const data = await t3Fetch<unknown>(`/page/${encodeURIComponent(slug)}`, {
+    // Use main headless page endpoint (typeNum 0 for strict headless mode)
+    const path =
+      slug === "home" || slug === "" ? "/" : `/${encodeURIComponent(slug)}`;
+    const data = await t3Fetch<unknown>(path, {
       cache: options?.cache ?? "force-cache",
       next: {
         tags: options?.next?.tags ?? [`page:${slug}`, "navigation:main"],
@@ -31,7 +68,11 @@ export const typo3Client = {
     cache?: RequestCache;
     next?: { tags?: string[] };
   }): Promise<NavigationResponse> {
-    const data = await t3Fetch<unknown>("/navigation", {
+    // Production-ready navigation endpoint using typeNum
+    const url = buildApiUrl(API_ENDPOINTS.navigation);
+    console.log("[typo3Client] Fetching navigation from:", url);
+
+    const data = await t3Fetch<unknown>(url, {
       cache: options?.cache ?? "force-cache",
       next: {
         tags: options?.next?.tags ?? ["navigation:main"],
@@ -44,9 +85,13 @@ export const typo3Client = {
     params?: URLSearchParams,
     options?: { cache?: RequestCache; next?: { tags?: string[] } }
   ): Promise<FahndungenResponse> {
-    const path = params ? `/fahndungen?${params.toString()}` : "/fahndungen";
-    const data = await t3Fetch<unknown>(path, {
-      cache: options?.cache ?? "force-cache",
+    // Production-ready Fahndungen endpoint using reliable typeNum
+    const paramObj = params ? Object.fromEntries(params.entries()) : undefined;
+    const url = buildApiUrl(API_ENDPOINTS.fahndungen, paramObj);
+    console.log("[typo3Client] Fetching Fahndungen from:", url);
+
+    const data = await t3Fetch<unknown>(url, {
+      cache: options?.cache ?? "no-store", // Fahndungen sind dynamisch
       next: {
         tags: options?.next?.tags ?? ["fahndungen:list"],
       },
@@ -95,6 +140,27 @@ export const typo3Client = {
     // Zod-Schema für Formulare kann in späterer Phase ergänzt werden
     return data;
   },
+
+  // Production-ready health check endpoint
+  async getHealthStatus(): Promise<{
+    status: string;
+    timestamp: string;
+    version: string;
+    services: Record<string, string>;
+  }> {
+    const url = buildApiUrl(API_ENDPOINTS.health);
+    console.log("[typo3Client] Health check from:", url);
+
+    const data = await t3Fetch<{
+      status: string;
+      timestamp: string;
+      version: string;
+      services: Record<string, string>;
+    }>(url, {
+      cache: "no-store",
+    });
+    return data;
+  },
 };
 
 function parseWithSchema<T>(
@@ -114,3 +180,12 @@ function parseWithSchema<T>(
 
   return result.data;
 }
+
+// Named exports for backward compatibility and cleaner imports
+export const getFahndungen = typo3Client.getFahndungen;
+export const getNavigation = typo3Client.getNavigation;
+export const getHealthStatus = typo3Client.getHealthStatus;
+export const getPage = typo3Client.getPage;
+
+// Export configuration for debugging/monitoring
+export { API_ENDPOINTS, buildApiUrl };
