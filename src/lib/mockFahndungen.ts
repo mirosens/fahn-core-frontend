@@ -1,12 +1,13 @@
 // Mock-Daten für Test-Fahndungen
+// Provisorische Fahndungskarten mit Platzhalterbildern bis zur Integration mit Typo3 Headless
 import type { FahndungItem } from "./typo3Client";
 
 export const mockFahndungen: FahndungItem[] = [
   {
     id: 1,
-    title: "Vermisste Person: Max Mustermann",
+    title: "Vermisste Person: Daniel Hartwick",
     description:
-      "Seit dem 15. Januar 2024 wird Max Mustermann vermisst. Er wurde zuletzt in der Innenstadt von Stuttgart gesehen. Max ist 1,75m groß, hat braune Haare und braune Augen. Er trug zum Zeitpunkt des Verschwindens eine blaue Jeans und ein rotes T-Shirt.",
+      "Seit dem 15. Januar 2024 wird Daniel Hartwick vermisst. Er wurde zuletzt in der Innenstadt von Stuttgart gesehen. Daniel ist 1,75m groß, hat braune Haare und braune Augen. Er trug zum Zeitpunkt des Verschwindens eine blaue Jeans und ein rotes T-Shirt.",
     summary:
       "Vermisste Person seit 15. Januar 2024. Zuletzt in Stuttgart gesehen.",
     status: "active",
@@ -14,10 +15,10 @@ export const mockFahndungen: FahndungItem[] = [
     location: "Stuttgart",
     delikt: "Vermisste Person",
     publishedAt: "2024-01-16T10:00:00Z",
-    slug: "vermisste-person-max-mustermann",
+    slug: "vermisste-person-daniel-hartwick",
     image: {
-      url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
-      alternative: "Foto von Max Mustermann",
+      url: "/images/placeholders/fotos/fahndungen/Daniel Hartwick.webp",
+      alternative: "Foto von Daniel Hartwick",
     },
     isNew: true,
     date: "2024-01-15",
@@ -27,9 +28,9 @@ export const mockFahndungen: FahndungItem[] = [
   },
   {
     id: 2,
-    title: "Gesuchter Straftäter: Einbruch in Juweliergeschäft",
+    title: "Gesuchter Straftäter: Freya Lindholm",
     description:
-      "Am 20. Januar 2024 wurde ein Juweliergeschäft in der Königstraße in Stuttgart aufgebrochen. Der Täter entwendete Schmuck im Wert von über 50.000 Euro. Zeugen beschrieben einen männlichen Täter, ca. 1,80m groß, schlank, mit Kapuze. Die Polizei bittet um Hinweise.",
+      "Am 20. Januar 2024 wurde ein Juweliergeschäft in der Königstraße in Stuttgart aufgebrochen. Die Täterin entwendete Schmuck im Wert von über 50.000 Euro. Zeugen beschrieben eine weibliche Täterin, ca. 1,70m groß, schlank, mit Kapuze. Die Polizei bittet um Hinweise.",
     summary:
       "Einbruch in Juweliergeschäft in Stuttgart. Schmuck im Wert von über 50.000 Euro entwendet.",
     status: "active",
@@ -37,10 +38,10 @@ export const mockFahndungen: FahndungItem[] = [
     location: "Stuttgart, Königstraße",
     delikt: "Schwerer Diebstahl",
     publishedAt: "2024-01-21T08:00:00Z",
-    slug: "gesuchter-straftaeter-einbruch-juwelier",
+    slug: "gesuchter-straftaeter-freya-lindholm",
     image: {
-      url: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=600&fit=crop",
-      alternative: "Gesuchter Straftäter",
+      url: "/images/placeholders/fotos/fahndungen/Freya Lindholm.webp",
+      alternative: "Gesuchte Straftäterin: Freya Lindholm",
     },
     isNew: true,
     date: "2024-01-20",
@@ -50,32 +51,9 @@ export const mockFahndungen: FahndungItem[] = [
   },
   {
     id: 3,
-    title: "Zeugenaufruf: Verkehrsunfall mit Fahrerflucht",
+    title: "Vermisste Person: Hana Mitsuki",
     description:
-      "Am 18. Januar 2024 ereignete sich ein Verkehrsunfall auf der B27 bei Ludwigsburg. Ein Fahrzeug verursachte einen Unfall und flüchtete anschließend. Die Polizei sucht Zeugen, die den Unfall beobachtet haben oder Informationen über das flüchtige Fahrzeug haben.",
-    summary:
-      "Verkehrsunfall mit Fahrerflucht auf der B27 bei Ludwigsburg. Zeugen gesucht.",
-    status: "active",
-    type: "witness_appeal",
-    location: "Ludwigsburg, B27",
-    delikt: "Fahrerflucht",
-    publishedAt: "2024-01-19T12:00:00Z",
-    slug: "zeugenaufruf-verkehrsunfall-fahrerflucht",
-    image: {
-      url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop",
-      alternative: "Unfallstelle",
-    },
-    isNew: false,
-    date: "2024-01-18",
-    kategorie: "ZEUGENAUFRUF",
-    tatzeit: "18.01.2024, ca. 16:30 Uhr",
-    dienststelle: "Polizeipräsidium Ludwigsburg",
-  },
-  {
-    id: 4,
-    title: "Vermisste Person: Anna Schmidt",
-    description:
-      "Anna Schmidt wird seit dem 12. Januar 2024 vermisst. Sie wurde zuletzt in Karlsruhe gesehen. Anna ist 1,65m groß, hat blonde Haare und grüne Augen. Sie trug eine schwarze Lederjacke und eine blaue Jeans. Die Familie ist sehr besorgt.",
+      "Hana Mitsuki wird seit dem 12. Januar 2024 vermisst. Sie wurde zuletzt in Karlsruhe gesehen. Hana ist 1,65m groß, hat schwarze Haare und braune Augen. Sie trug eine schwarze Lederjacke und eine blaue Jeans. Die Familie ist sehr besorgt.",
     summary:
       "Vermisste Person seit 12. Januar 2024. Zuletzt in Karlsruhe gesehen.",
     status: "active",
@@ -83,10 +61,10 @@ export const mockFahndungen: FahndungItem[] = [
     location: "Karlsruhe",
     delikt: "Vermisste Person",
     publishedAt: "2024-01-13T09:00:00Z",
-    slug: "vermisste-person-anna-schmidt",
+    slug: "vermisste-person-hana-mitsuki",
     image: {
-      url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop",
-      alternative: "Foto von Anna Schmidt",
+      url: "/images/placeholders/fotos/fahndungen/Hana Mitsuki.webp",
+      alternative: "Foto von Hana Mitsuki",
     },
     isNew: false,
     date: "2024-01-12",
@@ -95,10 +73,10 @@ export const mockFahndungen: FahndungItem[] = [
     dienststelle: "Polizeipräsidium Karlsruhe",
   },
   {
-    id: 5,
-    title: "Gesuchter Straftäter: Raubüberfall auf Tankstelle",
+    id: 4,
+    title: "Gesuchter Straftäter: Henrik Solberg",
     description:
-      "In der Nacht zum 22. Januar 2024 wurde eine Tankstelle in Mannheim überfallen. Der Täter bedrohte den Angestellten mit einer Waffe und erbeutete Bargeld. Der Täter wird als männlich, ca. 1,75m groß, kräftige Statur beschrieben. Er trug eine schwarze Kapuze und eine dunkle Jacke.",
+      "In der Nacht zum 22. Januar 2024 wurde eine Tankstelle in Mannheim überfallen. Der Täter bedrohte den Angestellten mit einer Waffe und erbeutete Bargeld. Der Täter wird als männlich, ca. 1,85m groß, kräftige Statur beschrieben. Er trug eine schwarze Kapuze und eine dunkle Jacke.",
     summary:
       "Raubüberfall auf Tankstelle in Mannheim. Täter mit Waffe bedroht Angestellten.",
     status: "active",
@@ -106,10 +84,10 @@ export const mockFahndungen: FahndungItem[] = [
     location: "Mannheim",
     delikt: "Raub",
     publishedAt: "2024-01-22T06:00:00Z",
-    slug: "gesuchter-straftaeter-raubueberfall-tankstelle",
+    slug: "gesuchter-straftaeter-henrik-solberg",
     image: {
-      url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop",
-      alternative: "Gesuchter Straftäter",
+      url: "/images/placeholders/fotos/fahndungen/Henrik Solberg.webp",
+      alternative: "Gesuchter Straftäter: Henrik Solberg",
     },
     isNew: true,
     date: "2024-01-22",
@@ -118,10 +96,10 @@ export const mockFahndungen: FahndungItem[] = [
     dienststelle: "Polizeipräsidium Mannheim",
   },
   {
-    id: 6,
-    title: "Vermisste Person: Peter Weber",
+    id: 5,
+    title: "Vermisste Person: Julian Reyes",
     description:
-      "Peter Weber wird seit dem 10. Januar 2024 vermisst. Er wurde zuletzt in Freiburg gesehen. Peter ist 1,82m groß, hat schwarze Haare und braune Augen. Er trug eine graue Jacke und schwarze Hosen. Die Polizei bittet um Hinweise zu seinem Verbleib.",
+      "Julian Reyes wird seit dem 10. Januar 2024 vermisst. Er wurde zuletzt in Freiburg gesehen. Julian ist 1,82m groß, hat schwarze Haare und braune Augen. Er trug eine graue Jacke und schwarze Hosen. Die Polizei bittet um Hinweise zu seinem Verbleib.",
     summary:
       "Vermisste Person seit 10. Januar 2024. Zuletzt in Freiburg gesehen.",
     status: "active",
@@ -129,10 +107,10 @@ export const mockFahndungen: FahndungItem[] = [
     location: "Freiburg",
     delikt: "Vermisste Person",
     publishedAt: "2024-01-11T14:00:00Z",
-    slug: "vermisste-person-peter-weber",
+    slug: "vermisste-person-julian-reyes",
     image: {
-      url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop",
-      alternative: "Foto von Peter Weber",
+      url: "/images/placeholders/fotos/fahndungen/Julian Reyes.webp",
+      alternative: "Foto von Julian Reyes",
     },
     isNew: false,
     date: "2024-01-10",
@@ -141,21 +119,21 @@ export const mockFahndungen: FahndungItem[] = [
     dienststelle: "Polizeipräsidium Freiburg",
   },
   {
-    id: 7,
-    title: "Gesuchter Straftäter: Sachbeschädigung an mehreren Fahrzeugen",
+    id: 6,
+    title: "Gesuchter Straftäter: Liora Kessler",
     description:
-      "In der Nacht zum 19. Januar 2024 wurden in Heilbronn mehrere parkende Fahrzeuge beschädigt. Die Täter zerkratzten die Lacke und zerstörten Außenspiegel. Zeugen sahen zwei männliche Personen, die sich verdächtig verhielten. Die Polizei sucht nach Hinweisen.",
+      "In der Nacht zum 19. Januar 2024 wurden in Heilbronn mehrere parkende Fahrzeuge beschädigt. Die Täterin zerkratzte die Lacke und zerstörte Außenspiegel. Zeugen sahen eine weibliche Person, die sich verdächtig verhielt. Die Polizei sucht nach Hinweisen.",
     summary:
-      "Sachbeschädigung an mehreren Fahrzeugen in Heilbronn. Zwei männliche Täter gesucht.",
+      "Sachbeschädigung an mehreren Fahrzeugen in Heilbronn. Gesuchte Täterin.",
     status: "active",
     type: "wanted",
     location: "Heilbronn",
     delikt: "Sachbeschädigung",
     publishedAt: "2024-01-20T10:00:00Z",
-    slug: "gesuchter-straftaeter-sachbeschaedigung-fahrzeuge",
+    slug: "gesuchter-straftaeter-liora-kessler",
     image: {
-      url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop",
-      alternative: "Gesuchter Straftäter",
+      url: "/images/placeholders/fotos/fahndungen/Liora Kessler.webp",
+      alternative: "Gesuchte Straftäterin: Liora Kessler",
     },
     isNew: false,
     date: "2024-01-19",
@@ -164,8 +142,76 @@ export const mockFahndungen: FahndungItem[] = [
     dienststelle: "Polizeipräsidium Heilbronn",
   },
   {
+    id: 7,
+    title: "Vermisste Person: Markus Varela",
+    description:
+      "Markus Varela wird seit dem 17. Januar 2024 vermisst. Er wurde zuletzt in Tübingen gesehen. Markus ist 1,78m groß, hat braune Haare und blaue Augen. Er trug eine rote Jacke und eine schwarze Hose. Die Familie ist sehr besorgt und bittet um Hinweise.",
+    summary:
+      "Vermisste Person seit 17. Januar 2024. Zuletzt in Tübingen gesehen.",
+    status: "active",
+    type: "missing_person",
+    location: "Tübingen",
+    delikt: "Vermisste Person",
+    publishedAt: "2024-01-18T11:00:00Z",
+    slug: "vermisste-person-markus-varela",
+    image: {
+      url: "/images/placeholders/fotos/fahndungen/Markus Varela.webp",
+      alternative: "Foto von Markus Varela",
+    },
+    isNew: false,
+    date: "2024-01-17",
+    kategorie: "VERMISSTE",
+    tatzeit: "17.01.2024, ca. 19:00 Uhr",
+    dienststelle: "Polizeipräsidium Tübingen",
+  },
+  {
     id: 8,
-    title: "Zeugenaufruf: Körperverletzung in Diskothek",
+    title: "Gesuchter Straftäter: Mateo Ordoñez",
+    description:
+      "Am 18. Januar 2024 ereignete sich ein Raubüberfall auf der B27 bei Ludwigsburg. Der Täter entwendete Wertsachen und flüchtete anschließend. Die Polizei sucht Zeugen, die den Vorfall beobachtet haben oder Informationen über den Täter haben.",
+    summary: "Raubüberfall auf der B27 bei Ludwigsburg. Gesuchter Täter.",
+    status: "active",
+    type: "wanted",
+    location: "Ludwigsburg, B27",
+    delikt: "Raub",
+    publishedAt: "2024-01-19T12:00:00Z",
+    slug: "gesuchter-straftaeter-mateo-ordonez",
+    image: {
+      url: "/images/placeholders/fotos/fahndungen/Mateo Ordoñez.webp",
+      alternative: "Gesuchter Straftäter: Mateo Ordoñez",
+    },
+    isNew: false,
+    date: "2024-01-18",
+    kategorie: "STRAFTÄTER",
+    tatzeit: "18.01.2024, ca. 16:30 Uhr",
+    dienststelle: "Polizeipräsidium Ludwigsburg",
+  },
+  {
+    id: 9,
+    title: "Vermisste Person: Mei Lin Zhou",
+    description:
+      "Mei Lin Zhou wird seit dem 14. Januar 2024 vermisst. Sie wurde zuletzt in Heidelberg gesehen. Mei Lin ist 1,68m groß, hat schwarze Haare und braune Augen. Sie trug eine weiße Jacke und eine schwarze Hose. Die Familie ist sehr besorgt.",
+    summary:
+      "Vermisste Person seit 14. Januar 2024. Zuletzt in Heidelberg gesehen.",
+    status: "active",
+    type: "missing_person",
+    location: "Heidelberg",
+    delikt: "Vermisste Person",
+    publishedAt: "2024-01-15T08:00:00Z",
+    slug: "vermisste-person-mei-lin-zhou",
+    image: {
+      url: "/images/placeholders/fotos/fahndungen/Mei Lin Zhou.webp",
+      alternative: "Foto von Mei Lin Zhou",
+    },
+    isNew: true,
+    date: "2024-01-14",
+    kategorie: "VERMISSTE",
+    tatzeit: "14.01.2024, ca. 20:00 Uhr",
+    dienststelle: "Polizeipräsidium Heidelberg",
+  },
+  {
+    id: 10,
+    title: "Zeugenaufruf: Rina Volkova",
     description:
       "In der Nacht zum 21. Januar 2024 kam es in einer Diskothek in Ulm zu einer Körperverletzung. Ein Gast wurde von mehreren unbekannten Personen angegriffen und verletzt. Die Polizei sucht Zeugen, die den Vorfall beobachtet haben oder Informationen über die Täter haben.",
     summary: "Körperverletzung in Diskothek in Ulm. Zeugen gesucht.",
@@ -174,10 +220,10 @@ export const mockFahndungen: FahndungItem[] = [
     location: "Ulm",
     delikt: "Körperverletzung",
     publishedAt: "2024-01-22T07:00:00Z",
-    slug: "zeugenaufruf-koerperverletzung-diskothek",
+    slug: "zeugenaufruf-rina-volkova",
     image: {
-      url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop",
-      alternative: "Zeugenaufruf",
+      url: "/images/placeholders/fotos/fahndungen/Rina Volkova.webp",
+      alternative: "Zeugenaufruf: Rina Volkova",
     },
     isNew: true,
     date: "2024-01-21",
@@ -186,26 +232,26 @@ export const mockFahndungen: FahndungItem[] = [
     dienststelle: "Polizeipräsidium Ulm",
   },
   {
-    id: 9,
-    title: "Vermisste Person: Lisa Müller",
+    id: 11,
+    title: "Vermisste Person: Talia Brooks",
     description:
-      "Lisa Müller wird seit dem 17. Januar 2024 vermisst. Sie wurde zuletzt in Tübingen gesehen. Lisa ist 1,70m groß, hat braune Haare und blaue Augen. Sie trug eine rote Jacke und eine schwarze Hose. Die Familie ist sehr besorgt und bittet um Hinweise.",
+      "Talia Brooks wird seit dem 16. Januar 2024 vermisst. Sie wurde zuletzt in Konstanz gesehen. Talia ist 1,72m groß, hat blonde Haare und grüne Augen. Sie trug eine gelbe Jacke und eine weiße Hose. Die Familie ist sehr besorgt und bittet um Hinweise.",
     summary:
-      "Vermisste Person seit 17. Januar 2024. Zuletzt in Tübingen gesehen.",
+      "Vermisste Person seit 16. Januar 2024. Zuletzt in Konstanz gesehen.",
     status: "active",
     type: "missing_person",
-    location: "Tübingen",
+    location: "Konstanz",
     delikt: "Vermisste Person",
-    publishedAt: "2024-01-18T11:00:00Z",
-    slug: "vermisste-person-lisa-mueller",
+    publishedAt: "2024-01-17T13:00:00Z",
+    slug: "vermisste-person-talia-brooks",
     image: {
-      url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop",
-      alternative: "Foto von Lisa Müller",
+      url: "/images/placeholders/fotos/fahndungen/Talia Brooks.webp",
+      alternative: "Foto von Talia Brooks",
     },
-    isNew: false,
-    date: "2024-01-17",
+    isNew: true,
+    date: "2024-01-16",
     kategorie: "VERMISSTE",
-    tatzeit: "17.01.2024, ca. 19:00 Uhr",
-    dienststelle: "Polizeipräsidium Tübingen",
+    tatzeit: "16.01.2024, ca. 17:00 Uhr",
+    dienststelle: "Polizeipräsidium Konstanz",
   },
 ];
