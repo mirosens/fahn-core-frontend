@@ -18,7 +18,11 @@ interface MobileHeaderProps {
  * MobileHeader Component
  * Mobile-spezifische Navigation mit Hamburger-Menü
  */
-export default function MobileHeader({ onFilterToggle: _onFilterToggle, isFilterOpen: _isFilterOpen = false, onFilterClose }: MobileHeaderProps) {
+export default function MobileHeader({
+  onFilterToggle: _onFilterToggle,
+  isFilterOpen: _isFilterOpen = false,
+  onFilterClose,
+}: MobileHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -82,9 +86,7 @@ export default function MobileHeader({ onFilterToggle: _onFilterToggle, isFilter
   };
 
   return (
-    <div 
-      ref={menuRef}
-    >
+    <div ref={menuRef}>
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -102,9 +104,9 @@ export default function MobileHeader({ onFilterToggle: _onFilterToggle, isFilter
       </button>
 
       {/* Mobile Menu */}
-      <ModernMobileMenu 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
+      <ModernMobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
         session={session}
         onLogout={handleLogout}
         onFilterClose={onFilterClose}
@@ -112,4 +114,3 @@ export default function MobileHeader({ onFilterToggle: _onFilterToggle, isFilter
     </div>
   );
 }
-

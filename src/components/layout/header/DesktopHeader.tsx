@@ -7,7 +7,11 @@ import { VerticalThemeToggle } from "@/components/ui/VerticalThemeToggle";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { getBrowserClient } from "@/lib/supabase/supabase-browser";
-import { navigationData, type NavItem, type NavSection } from "@/constants/navigationData";
+import {
+  navigationData,
+  type NavItem,
+  type NavSection,
+} from "@/constants/navigationData";
 import { useFilter } from "@/contexts/FilterContext";
 
 interface DesktopHeaderProps {
@@ -22,7 +26,13 @@ interface DesktopHeaderProps {
  * DesktopHeader Component
  * Desktop-spezifische Navigation mit Dropdown-Menüs
  */
-export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilterOpen: _isFilterOpen = false, onFilterClose, resultCount: _resultCount, hasActiveFilters: _propHasActiveFilters }: DesktopHeaderProps) {
+export default function DesktopHeader({
+  onFilterToggle: _onFilterToggle,
+  isFilterOpen: _isFilterOpen = false,
+  onFilterClose,
+  resultCount: _resultCount,
+  hasActiveFilters: _propHasActiveFilters,
+}: DesktopHeaderProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -35,39 +45,47 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
 
   // Lade Filter aus localStorage (PP-Segmente, Districts, Stations, Sub-Stations)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const loadFilters = () => {
       try {
         // PP-Segmente
-        const savedSegments = localStorage.getItem('fahndung-selected-segments');
+        const savedSegments = localStorage.getItem(
+          "fahndung-selected-segments"
+        );
         if (savedSegments) {
           const segments = JSON.parse(savedSegments) as string[];
           setPPSegments(segments);
         } else {
           setPPSegments([]);
         }
-        
+
         // Districts
-        const savedDistricts = localStorage.getItem('fahndung-selected-districts');
+        const savedDistricts = localStorage.getItem(
+          "fahndung-selected-districts"
+        );
         if (savedDistricts) {
           const districts = JSON.parse(savedDistricts) as string[];
           setSelectedDistricts(districts);
         } else {
           setSelectedDistricts([]);
         }
-        
+
         // Stations
-        const savedStations = localStorage.getItem('fahndung-selected-stations');
+        const savedStations = localStorage.getItem(
+          "fahndung-selected-stations"
+        );
         if (savedStations) {
           const stations = JSON.parse(savedStations) as string[];
           setSelectedStations(stations);
         } else {
           setSelectedStations([]);
         }
-        
+
         // Sub-Stations
-        const savedSubStations = localStorage.getItem('fahndung-selected-sub-stations');
+        const savedSubStations = localStorage.getItem(
+          "fahndung-selected-sub-stations"
+        );
         if (savedSubStations) {
           const subStations = JSON.parse(savedSubStations) as string[];
           setSelectedSubStations(subStations);
@@ -75,39 +93,38 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
           setSelectedSubStations([]);
         }
       } catch (e) {
-        console.error('Fehler beim Laden der Filter:', e);
+        console.error("Fehler beim Laden der Filter:", e);
         setPPSegments([]);
         setSelectedDistricts([]);
         setSelectedStations([]);
         setSelectedSubStations([]);
       }
     };
-    
+
     loadFilters();
-    
+
     // Höre auf Änderungen
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith('fahndung-selected-')) {
+      if (e.key?.startsWith("fahndung-selected-")) {
         loadFilters();
       }
     };
-    
+
     const handleCustomEvent = (e: Event) => {
       const customEvent = e as CustomEvent<{ key: string; value: string }>;
-      if (customEvent.detail?.key?.startsWith('fahndung-selected-')) {
+      if (customEvent.detail?.key?.startsWith("fahndung-selected-")) {
         loadFilters();
       }
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('fahndung-filter-change', handleCustomEvent);
-    
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("fahndung-filter-change", handleCustomEvent);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('fahndung-filter-change', handleCustomEvent);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("fahndung-filter-change", handleCustomEvent);
     };
   }, []);
-
 
   // Escape key handler
   useEffect(() => {
@@ -124,7 +141,10 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
   // Click outside handler - schließt Dropdowns wenn außerhalb geklickt wird
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         void setActiveDropdown(null);
       }
     };
@@ -171,7 +191,9 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
     if (section === "Service") {
       // Für Service-Sektion: Zeige nur öffentliche Items wenn nicht angemeldet
       if (!isAuthenticated) {
-        return items.filter((item) => !item.requiresAuth && !item.isAuthSection);
+        return items.filter(
+          (item) => !item.requiresAuth && !item.isAuthSection
+        );
       }
       // 🔥 WENN ANGEMELDET: Zeige alle Items außer Anmelden/Registrieren
       // Erlaube Zugriff auf "Neue Fahndung" für alle angemeldeten Benutzer
@@ -241,8 +263,8 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
         )}
 
         {/* Hamburger-Menü - enthält Leichte Sprache, Gebärdensprache und Service */}
-        <div 
-          ref={dropdownRef} 
+        <div
+          ref={dropdownRef}
           className="relative flex items-center justify-center"
         >
           <button
@@ -289,7 +311,9 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-200 hover:bg-accent focus:bg-accent focus:outline-none"
                     role="menuitem"
                   >
-                    <span className="text-sm font-medium text-foreground">Leichte Sprache</span>
+                    <span className="text-sm font-medium text-foreground">
+                      Leichte Sprache
+                    </span>
                   </Link>
                   <Link
                     href="/gebaerdensprache"
@@ -300,7 +324,9 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-200 hover:bg-accent focus:bg-accent focus:outline-none"
                     role="menuitem"
                   >
-                    <span className="text-sm font-medium text-foreground">Gebärdensprache</span>
+                    <span className="text-sm font-medium text-foreground">
+                      Gebärdensprache
+                    </span>
                   </Link>
                 </div>
 
@@ -329,14 +355,22 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                             <Link
                               href={item.href}
                               target={item.external ? "_blank" : undefined}
-                              rel={item.external ? "noopener noreferrer" : undefined}
+                              rel={
+                                item.external
+                                  ? "noopener noreferrer"
+                                  : undefined
+                              }
                               onClick={(e) => {
                                 onFilterClose?.();
                                 setActiveDropdown(null);
                                 // Stelle sicher, dass die Navigation korrekt funktioniert
                                 if (item.external) {
                                   e.preventDefault();
-                                  window.open(item.href, "_blank", "noopener,noreferrer");
+                                  window.open(
+                                    item.href,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                  );
                                 }
                               }}
                               className={`
@@ -348,7 +382,9 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                             >
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-foreground">{item.label}</span>
+                                  <span className="text-sm font-medium text-foreground">
+                                    {item.label}
+                                  </span>
                                   {item.badge && (
                                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                                       {item.badge}
@@ -387,7 +423,8 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                                 <div className="flex items-center gap-2">
                                   <div className="flex-1">
                                     <div className="text-sm font-medium text-foreground">
-                                      {session?.user?.email?.split("@")[0] ?? "Benutzer"}
+                                      {session?.user?.email?.split("@")[0] ??
+                                        "Benutzer"}
                                     </div>
                                     <div className="text-xs font-medium text-foreground/80">
                                       Angemeldet
@@ -404,7 +441,9 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                               >
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-foreground group-hover:text-red-600">Abmelden</span>
+                                    <span className="text-sm font-medium text-foreground group-hover:text-red-600">
+                                      Abmelden
+                                    </span>
                                   </div>
                                   <div className="text-xs font-medium text-foreground/80 group-hover:text-red-600/80">
                                     Aus dem System abmelden
@@ -425,7 +464,11 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
                                     // Stelle sicher, dass die Navigation korrekt funktioniert
                                     if (item.external) {
                                       e.preventDefault();
-                                      window.open(item.href, "_blank", "noopener,noreferrer");
+                                      window.open(
+                                        item.href,
+                                        "_blank",
+                                        "noopener,noreferrer"
+                                      );
                                     }
                                   }}
                                   className="group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors duration-200 hover:bg-accent focus:bg-accent focus:outline-none"
@@ -462,4 +505,3 @@ export default function DesktopHeader({ onFilterToggle: _onFilterToggle, isFilte
     </>
   );
 }
-

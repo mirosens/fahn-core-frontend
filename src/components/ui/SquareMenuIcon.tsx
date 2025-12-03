@@ -25,4 +25,3 @@ export function SquareMenuIcon({ className = "" }: SquareMenuIconProps) {
     </svg>
   );
 }
-
