@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { Search, Filter, X, Calendar } from "lucide-react";
 import FilterChips from "@/components/filtersystem/FilterChips";
 import { type ModernFilterState } from "@/components/filtersystem/ModernFahndungFilter";
@@ -14,11 +20,11 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
   className = "",
   showRegionFilter = true,
   defaultValues = {},
-  availableLocations: _availableLocations = [],
+  availableLocations: _availableLocations = [], // eslint-disable-line @typescript-eslint/no-unused-vars
   availableStations = [],
-  viewMode: _viewMode = "grid-3",
-  onViewChange: _onViewChange,
-  onClose: _onClose,
+  viewMode: _viewMode = "grid-3", // eslint-disable-line @typescript-eslint/no-unused-vars
+  onViewChange: _onViewChange, // eslint-disable-line @typescript-eslint/no-unused-vars
+  onClose: _onClose, // eslint-disable-line @typescript-eslint/no-unused-vars
   isInline = false,
 }) => {
   const [filters, setFilters] = useState<CompactFilterState>({
@@ -41,27 +47,31 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
   const [ppSegments, setPPSegments] = useState<string[]>([]);
 
   // Filter-Updates
-  const updateFilter = useCallback((key: keyof CompactFilterState, value: unknown) => {
-    setFilters((prev) => {
-      const newFilters = {
-        ...prev,
-        [key]: value as CompactFilterState[keyof CompactFilterState],
-      };
-      return newFilters;
-    });
-  }, []);
+  const updateFilter = useCallback(
+    (key: keyof CompactFilterState, value: unknown) => {
+      setFilters((prev) => {
+        const newFilters = {
+          ...prev,
+          [key]: value as CompactFilterState[keyof CompactFilterState],
+        };
+        return newFilters;
+      });
+    },
+    []
+  );
 
   // Callback für Filter-Änderungen
   const handleFilterChange = useCallback(
     (newFilters: CompactFilterState) => {
       void onFilterChange(newFilters);
     },
-    [onFilterChange],
+    [onFilterChange]
   );
 
   // Aktualisiere Filter wenn defaultValues sich ändern (z.B. beim erneuten Öffnen des Panels)
   // Verwende useRef um Endlosschleifen zu vermeiden
-  const prevDefaultValuesRef = useRef<Partial<CompactFilterState>>(defaultValues);
+  const prevDefaultValuesRef =
+    useRef<Partial<CompactFilterState>>(defaultValues);
   const isTypingRef = useRef(false);
 
   useEffect(() => {
@@ -71,7 +81,7 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
     }
 
     // Vergleiche Werte und aktualisiere nur wenn sich etwas geändert hat
-    const hasChanged = 
+    const hasChanged =
       defaultValues.searchTerm !== prevDefaultValuesRef.current.searchTerm ||
       defaultValues.timeRange !== prevDefaultValuesRef.current.timeRange ||
       defaultValues.dateFrom !== prevDefaultValuesRef.current.dateFrom ||
@@ -79,23 +89,28 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
       defaultValues.neu !== prevDefaultValuesRef.current.neu ||
       defaultValues.lka !== prevDefaultValuesRef.current.lka ||
       defaultValues.bka !== prevDefaultValuesRef.current.bka ||
-      JSON.stringify(defaultValues.stations) !== JSON.stringify(prevDefaultValuesRef.current.stations) ||
-      JSON.stringify(defaultValues.types) !== JSON.stringify(prevDefaultValuesRef.current.types);
+      JSON.stringify(defaultValues.stations) !==
+        JSON.stringify(prevDefaultValuesRef.current.stations) ||
+      JSON.stringify(defaultValues.types) !==
+        JSON.stringify(prevDefaultValuesRef.current.types);
 
     if (hasChanged) {
       prevDefaultValuesRef.current = defaultValues;
-      setFilters((prev) => ({
-        ...prev,
-        searchTerm: defaultValues.searchTerm ?? prev.searchTerm,
-        stations: defaultValues.stations ?? prev.stations,
-        types: defaultValues.types ?? prev.types,
-        timeRange: defaultValues.timeRange ?? prev.timeRange,
-        dateFrom: defaultValues.dateFrom ?? prev.dateFrom,
-        dateTo: defaultValues.dateTo ?? prev.dateTo,
-        neu: defaultValues.neu ?? prev.neu,
-        lka: defaultValues.lka ?? prev.lka,
-        bka: defaultValues.bka ?? prev.bka,
-      }));
+      // Verwende setTimeout, um setState asynchron aufzurufen und React-Warnungen zu vermeiden
+      setTimeout(() => {
+        setFilters((prev) => ({
+          ...prev,
+          searchTerm: defaultValues.searchTerm ?? prev.searchTerm,
+          stations: defaultValues.stations ?? prev.stations,
+          types: defaultValues.types ?? prev.types,
+          timeRange: defaultValues.timeRange ?? prev.timeRange,
+          dateFrom: defaultValues.dateFrom ?? prev.dateFrom,
+          dateTo: defaultValues.dateTo ?? prev.dateTo,
+          neu: defaultValues.neu ?? prev.neu,
+          lka: defaultValues.lka ?? prev.lka,
+          bka: defaultValues.bka ?? prev.bka,
+        }));
+      }, 0);
     }
   }, [defaultValues]);
 
@@ -105,36 +120,42 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
   }, [filters, handleFilterChange]);
 
   // Multi-Select Toggle für Arrays
-  const toggleArrayFilter = useCallback((
-    filterType: keyof Pick<CompactFilterState, "stations" | "types">,
-    value: string,
-  ) => {
-    setFilters((prev) => {
-      const currentArray = prev[filterType];
-      const newArray = currentArray.includes(value)
-        ? currentArray.filter((v) => v !== value)
-        : [...currentArray, value];
-      return {
-        ...prev,
-        [filterType]: newArray,
-      };
-    });
-  }, []);
-
-  // Filter entfernen (für FilterChips) - Wrapper für ModernFilterState Kompatibilität
-  const removeFilter = useCallback((filterType: keyof ModernFilterState, value: string) => {
-    setFilters((prev) => {
-      const compactKey = filterType as keyof CompactFilterState;
-      const currentValue = prev[compactKey];
-      if (Array.isArray(currentValue)) {
+  const toggleArrayFilter = useCallback(
+    (
+      filterType: keyof Pick<CompactFilterState, "stations" | "types">,
+      value: string
+    ) => {
+      setFilters((prev) => {
+        const currentArray = prev[filterType];
+        const newArray = currentArray.includes(value)
+          ? currentArray.filter((v) => v !== value)
+          : [...currentArray, value];
         return {
           ...prev,
-          [compactKey]: (currentValue).filter((v: string) => v !== value),
+          [filterType]: newArray,
         };
-      }
-      return prev;
-    });
-  }, []);
+      });
+    },
+    []
+  );
+
+  // Filter entfernen (für FilterChips) - Wrapper für ModernFilterState Kompatibilität
+  const removeFilter = useCallback(
+    (filterType: keyof ModernFilterState, value: string) => {
+      setFilters((prev) => {
+        const compactKey = filterType as keyof CompactFilterState;
+        const currentValue = prev[compactKey];
+        if (Array.isArray(currentValue)) {
+          return {
+            ...prev,
+            [compactKey]: currentValue.filter((v: string) => v !== value),
+          };
+        }
+        return prev;
+      });
+    },
+    []
+  );
 
   // Zeit-Filter entfernen
   const removeTimeFilter = useCallback(() => {
@@ -148,26 +169,29 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
 
   // Lade PP-Segmente aus localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedSegments = localStorage.getItem('fahndung-selected-segments');
+    if (typeof window !== "undefined") {
+      const savedSegments = localStorage.getItem("fahndung-selected-segments");
       if (savedSegments) {
         try {
           const segments = JSON.parse(savedSegments) as string[];
-          setPPSegments(segments);
+          // Verwende setTimeout, um setState asynchron aufzurufen und React-Warnungen zu vermeiden
+          setTimeout(() => {
+            setPPSegments(segments);
+          }, 0);
         } catch (e) {
-          console.error('Fehler beim Laden der gespeicherten Segmente:', e);
+          console.error("Fehler beim Laden der gespeicherten Segmente:", e);
         }
       }
     }
 
     // Höre auf Änderungen in localStorage
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'fahndung-selected-segments' && e.newValue) {
+      if (e.key === "fahndung-selected-segments" && e.newValue) {
         try {
           const segments = JSON.parse(e.newValue) as string[];
           setPPSegments(segments);
         } catch (e) {
-          console.error('Fehler beim Laden der gespeicherten Segmente:', e);
+          console.error("Fehler beim Laden der gespeicherten Segmente:", e);
         }
       }
     };
@@ -175,22 +199,22 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
     // Höre auf Custom Events (wenn localStorage im gleichen Tab geändert wird)
     const handleCustomEvent = (e: Event) => {
       const customEvent = e as CustomEvent<{ key: string; value: string }>;
-      if (customEvent.detail?.key === 'fahndung-selected-segments') {
+      if (customEvent.detail?.key === "fahndung-selected-segments") {
         try {
           const segments = JSON.parse(customEvent.detail.value) as string[];
           setPPSegments(segments);
         } catch (e) {
-          console.error('Fehler beim Laden der gespeicherten Segmente:', e);
+          console.error("Fehler beim Laden der gespeicherten Segmente:", e);
         }
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('fahndung-filter-change', handleCustomEvent);
-    
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("fahndung-filter-change", handleCustomEvent);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('fahndung-filter-change', handleCustomEvent);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("fahndung-filter-change", handleCustomEvent);
     };
   }, []);
 
@@ -212,17 +236,22 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
   }, [filters, ppSegments]);
 
   // PP-Segment entfernen
-  const removePPSegment = useCallback((segmentId: string) => {
-    if (typeof window !== 'undefined') {
-      const newSegments = ppSegments.filter(id => id !== segmentId);
-      setPPSegments(newSegments);
-      const segmentsStr = JSON.stringify(newSegments);
-      localStorage.setItem('fahndung-selected-segments', segmentsStr);
-      window.dispatchEvent(new CustomEvent('fahndung-filter-change', { 
-        detail: { key: 'fahndung-selected-segments', value: segmentsStr } 
-      }));
-    }
-  }, [ppSegments]);
+  const removePPSegment = useCallback(
+    (segmentId: string) => {
+      if (typeof window !== "undefined") {
+        const newSegments = ppSegments.filter((id) => id !== segmentId);
+        setPPSegments(newSegments);
+        const segmentsStr = JSON.stringify(newSegments);
+        localStorage.setItem("fahndung-selected-segments", segmentsStr);
+        window.dispatchEvent(
+          new CustomEvent("fahndung-filter-change", {
+            detail: { key: "fahndung-selected-segments", value: segmentsStr },
+          })
+        );
+      }
+    },
+    [ppSegments]
+  );
 
   // Reset
   const resetFilters = useCallback(() => {
@@ -242,28 +271,36 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
     };
     void setFilters(resetState);
     void handleFilterChange(resetState);
-    
+
     // PP-Segmente zurücksetzen
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setPPSegments([]);
-      localStorage.setItem('fahndung-selected-segments', JSON.stringify([]));
-      window.dispatchEvent(new CustomEvent('fahndung-filter-change', { 
-        detail: { key: 'fahndung-selected-segments', value: JSON.stringify([]) } 
-      }));
+      localStorage.setItem("fahndung-selected-segments", JSON.stringify([]));
+      window.dispatchEvent(
+        new CustomEvent("fahndung-filter-change", {
+          detail: {
+            key: "fahndung-selected-segments",
+            value: JSON.stringify([]),
+          },
+        })
+      );
     }
   }, [handleFilterChange]);
 
   // Konvertiere CompactFilterState zu ModernFilterState für FilterChips
-  const modernFilterState: ModernFilterState = useMemo(() => ({
-    stations: filters.stations,
-    locations: [],
-    types: filters.types,
-    neu: filters.neu,
-    timeRange: filters.timeRange,
-    searchTerm: filters.searchTerm,
-    lka: filters.lka,
-    bka: filters.bka,
-  }), [filters]);
+  const modernFilterState: ModernFilterState = useMemo(
+    () => ({
+      stations: filters.stations,
+      locations: [],
+      types: filters.types,
+      neu: filters.neu,
+      timeRange: filters.timeRange,
+      searchTerm: filters.searchTerm,
+      lka: filters.lka,
+      bka: filters.bka,
+    }),
+    [filters]
+  );
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -285,15 +322,18 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
     <div className={`compact-filter ${className}`}>
       {/* Desktop Layout - Kompaktes 3-Spalten-Layout */}
       <div className="hidden md:block">
-        <div className={`w-full ${isInline ? 'p-0' : 'rounded-lg p-2.5 mx-auto px-4 sm:px-6 lg:px-8'}`} style={isInline ? {} : { maxWidth: '1273px' }}>
+        <div
+          className={`w-full ${isInline ? "p-0" : "rounded-lg p-2.5 mx-auto px-4 sm:px-6 lg:px-8"}`}
+          style={isInline ? {} : { maxWidth: "1273px" }}
+        >
           {/* Kompakte Filter-Zeile mit 3 gleich breiten Spalten */}
-          <div className="flex items-center justify-center gap-4 h-9 px-8 overflow-visible">
+          <div className="flex items-center justify-center gap-2 h-9 px-2 overflow-visible">
             {/* Fahndungssuche - Suchfeld mit Zeit/Datum-Icon */}
-            <div className="relative flex-1 min-w-0">
+            <div className="relative flex-1 min-w-[200px] max-w-[300px]">
               <label htmlFor="compact-filter-search" className="sr-only">
                 Fahndungssuche
               </label>
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/70" />
+              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/70" />
               <input
                 id="compact-filter-search"
                 ref={searchRef}
@@ -311,16 +351,18 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                   isTypingRef.current = false;
                 }}
                 placeholder="Fahndungssuche..."
-                className="h-9 pl-8 pr-10 text-sm w-full rounded-md border border-border bg-background text-foreground placeholder:text-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 [&::-webkit-search-cancel-button]:hidden [&::-ms-clear]:hidden"
+                className="h-9 pl-7 pr-9 text-sm w-full rounded-md border border-border bg-background text-foreground placeholder:text-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 [&::-webkit-search-cancel-button]:hidden [&::-ms-clear]:hidden"
               />
               {/* Zeit/Datum-Icon im Suchfeld rechts */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10">
                 <DateRangeDropdown
                   title="Datum/Zeitraum"
                   timeRange={filters.timeRange}
                   dateFrom={filters.dateFrom}
                   dateTo={filters.dateTo}
-                  onTimeRangeChange={(value) => updateFilter("timeRange", value)}
+                  onTimeRangeChange={(value) =>
+                    updateFilter("timeRange", value)
+                  }
                   onDateFromChange={(value) => updateFilter("dateFrom", value)}
                   onDateToChange={(value) => updateFilter("dateTo", value)}
                   icon={Calendar}
@@ -331,15 +373,15 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
               {filters.searchTerm && (
                 <button
                   onClick={() => updateFilter("searchTerm", "")}
-                  className="absolute right-10 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground z-10"
+                  className="absolute right-8 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground z-10"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
 
             {/* Fahndungsart - Dropdown */}
-            <div className="flex-1 min-w-0 overflow-visible">
+            <div className="flex-1 min-w-[200px] max-w-[300px] overflow-visible">
               <MultiSelectDropdown
                 title="Fahndungsart"
                 options={FAHNDUNGSTYPEN}
@@ -350,8 +392,8 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
             </div>
 
             {/* Dienststellen - ersetzt PP-Karte */}
-            <div className="flex-1 min-w-0 overflow-visible">
-              <PolizeipraesidienTile 
+            <div className="flex-1 min-w-[200px] max-w-[300px] overflow-visible">
+              <PolizeipraesidienTile
                 lka={filters.lka}
                 bka={filters.bka}
                 onLkaChange={(value) => updateFilter("lka", value)}
@@ -383,7 +425,7 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                   ppSegments={ppSegments}
                 />
               </div>
-              
+
               {/* Zurücksetzen Button - nur wenn inline */}
               {isInline && (
                 <div className="flex gap-2">
@@ -393,7 +435,18 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                     type="button"
                     aria-label="Alle Filter zurücksetzen"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
                       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                       <path d="M3 3v5h5"></path>
                     </svg>
@@ -401,7 +454,7 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                   </button>
                 </div>
               )}
-              
+
               {/* Alle zurücksetzen Button - rechts (nur wenn nicht inline) */}
               {!isInline && (
                 <button
@@ -479,9 +532,17 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                   {/* Mobile Filter Controls */}
                   {/* Dienststellen - ersetzt PP-Karte */}
                   <div>
-                    <label htmlFor="pp-karte-group" className="mb-2 block text-sm font-medium">Dienststellen</label>
-                    <div id="pp-karte-group" className="max-h-40 space-y-2 overflow-y-auto">
-                      <PolizeipraesidienTile 
+                    <label
+                      htmlFor="pp-karte-group"
+                      className="mb-2 block text-sm font-medium"
+                    >
+                      Dienststellen
+                    </label>
+                    <div
+                      id="pp-karte-group"
+                      className="max-h-40 space-y-2 overflow-y-auto"
+                    >
+                      <PolizeipraesidienTile
                         lka={filters.lka}
                         bka={filters.bka}
                         onLkaChange={(value) => updateFilter("lka", value)}
@@ -493,21 +554,30 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
 
                   {/* Fahndungsarten - Multi-Select */}
                   <div>
-                    <label htmlFor="types-group" className="mb-2 block text-sm font-medium">Fahndungsart</label>
+                    <label
+                      htmlFor="types-group"
+                      className="mb-2 block text-sm font-medium"
+                    >
+                      Fahndungsart
+                    </label>
                     <div id="types-group" className="space-y-2">
                       {FAHNDUNGSTYPEN.map((type) => (
                         <label
                           key={type.value}
                           htmlFor={`type-${type.value}`}
                           className={`flex cursor-pointer items-center gap-3 rounded-lg p-3 ${
-                            filters.types.includes(type.value) ? "bg-accent" : ""
+                            filters.types.includes(type.value)
+                              ? "bg-accent"
+                              : ""
                           }`}
                         >
                           <input
                             id={`type-${type.value}`}
                             type="checkbox"
                             checked={filters.types.includes(type.value)}
-                            onChange={() => toggleArrayFilter("types", type.value)}
+                            onChange={() =>
+                              toggleArrayFilter("types", type.value)
+                            }
                             className="h-4 w-4 rounded"
                           />
                           <type.icon className="h-4 w-4" />
@@ -519,25 +589,50 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
 
                   {/* Datum-Filter */}
                   <div>
-                    <label htmlFor="date-filter-group" className="mb-2 block text-sm font-medium">Datum</label>
-                    <div id="date-filter-group" className="grid grid-cols-2 gap-3">
+                    <label
+                      htmlFor="date-filter-group"
+                      className="mb-2 block text-sm font-medium"
+                    >
+                      Datum
+                    </label>
+                    <div
+                      id="date-filter-group"
+                      className="grid grid-cols-2 gap-3"
+                    >
                       <div>
-                        <label htmlFor="date-from" className="mb-1 block text-xs text-muted-foreground">Von</label>
+                        <label
+                          htmlFor="date-from"
+                          className="mb-1 block text-xs text-muted-foreground"
+                        >
+                          Von
+                        </label>
                         <input
                           id="date-from"
                           type="date"
                           value={filters.dateFrom ?? ""}
-                          onChange={(e) => updateFilter("dateFrom", e.target.value || undefined)}
+                          onChange={(e) =>
+                            updateFilter(
+                              "dateFrom",
+                              e.target.value || undefined
+                            )
+                          }
                           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                       </div>
                       <div>
-                        <label htmlFor="date-to" className="mb-1 block text-xs text-muted-foreground">Bis</label>
+                        <label
+                          htmlFor="date-to"
+                          className="mb-1 block text-xs text-muted-foreground"
+                        >
+                          Bis
+                        </label>
                         <input
                           id="date-to"
                           type="date"
                           value={filters.dateTo ?? ""}
-                          onChange={(e) => updateFilter("dateTo", e.target.value || undefined)}
+                          onChange={(e) =>
+                            updateFilter("dateTo", e.target.value || undefined)
+                          }
                           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                       </div>
@@ -546,17 +641,31 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
 
                   {/* Zeitraum-Filter */}
                   <div>
-                    <label htmlFor="timerange-group" className="mb-2 block text-sm font-medium">Zeitraum</label>
+                    <label
+                      htmlFor="timerange-group"
+                      className="mb-2 block text-sm font-medium"
+                    >
+                      Zeitraum
+                    </label>
                     <div id="timerange-group" className="space-y-2">
                       {TIME_RANGE_OPTIONS.map((option) => (
-                        <label key={option.value} htmlFor={`timerange-${option.value}`} className="flex items-center gap-2">
+                        <label
+                          key={option.value}
+                          htmlFor={`timerange-${option.value}`}
+                          className="flex items-center gap-2"
+                        >
                           <input
                             id={`timerange-${option.value}`}
                             type="radio"
                             name="timeRange"
                             value={option.value}
                             checked={filters.timeRange === option.value}
-                            onChange={() => updateFilter("timeRange", option.value as CompactFilterState["timeRange"])}
+                            onChange={() =>
+                              updateFilter(
+                                "timeRange",
+                                option.value as CompactFilterState["timeRange"]
+                              )
+                            }
                             className="h-4 w-4 text-primary focus:ring-primary"
                           />
                           <span className="text-sm">{option.label}</span>
@@ -567,10 +676,22 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
 
                   {showRegionFilter && (
                     <div>
-                      <label htmlFor="region-group" className="mb-2 block text-sm font-medium">Regionen</label>
-                      <div id="region-group" className="max-h-40 space-y-2 overflow-y-auto">
+                      <label
+                        htmlFor="region-group"
+                        className="mb-2 block text-sm font-medium"
+                      >
+                        Regionen
+                      </label>
+                      <div
+                        id="region-group"
+                        className="max-h-40 space-y-2 overflow-y-auto"
+                      >
                         {REGIONEN.map((region) => (
-                          <label key={region} htmlFor={`region-${region}`} className="flex items-center gap-3 p-2">
+                          <label
+                            key={region}
+                            htmlFor={`region-${region}`}
+                            className="flex items-center gap-3 p-2"
+                          >
                             <input
                               id={`region-${region}`}
                               type="checkbox"
@@ -579,10 +700,13 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                                 if (filters.region.includes(region)) {
                                   updateFilter(
                                     "region",
-                                    filters.region.filter((r) => r !== region),
+                                    filters.region.filter((r) => r !== region)
                                   );
                                 } else {
-                                  updateFilter("region", [...filters.region, region]);
+                                  updateFilter("region", [
+                                    ...filters.region,
+                                    region,
+                                  ]);
                                 }
                               }}
                               className="h-4 w-4 rounded"
@@ -630,4 +754,3 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
     </div>
   );
 };
-
