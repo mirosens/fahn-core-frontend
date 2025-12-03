@@ -27,6 +27,23 @@ const TIME_RANGE_OPTIONS = [
   { value: "30d", label: "Letzte 30 Tage" },
 ];
 
+// Hilfsfunktion für Fahndungsart-Button-Styles
+const getFahndungsartButtonClasses = (color: string, isActive: boolean) => {
+  if (!isActive) {
+    return "bg-background border-border text-foreground hover:bg-accent";
+  }
+  
+  const colorClasses: Record<string, string> = {
+    red: "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
+    blue: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+    green: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+    gray: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700",
+    orange: "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
+  };
+  
+  return colorClasses[color] || colorClasses.blue;
+};
+
 // Filter-Chip Komponente (außerhalb der Komponente definiert)
 const FilterChip = ({
   label,
@@ -92,6 +109,30 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
     "all"
   );
   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
+  const [showFahndungsartDropdown, setShowFahndungsartDropdown] = useState(false);
+
+  // Ref für das Fahndungsart-Dropdown
+  const fahndungsartDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Schließe Dropdowns beim Klicken außerhalb
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        fahndungsartDropdownRef.current &&
+        !fahndungsartDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowFahndungsartDropdown(false);
+      }
+    };
+
+    if (showFahndungsartDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFahndungsartDropdown]);
 
   // Synchronisiere lokalen State mit URL-Parametern
   useEffect(() => {
@@ -222,18 +263,9 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
   // Chips-Only Modus: Nur Filter-Chips und Reset-Button anzeigen
   if (isChipsOnly) {
     return (
-      <div className={`flex items-center justify-between ${className}`}>
-        <div className="flex flex-wrap gap-2">
-          {/* Reset Button */}
-          {activeFilterCount > 0 && (
-            <button
-              onClick={resetFilters}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium mr-3"
-            >
-              Zurücksetzen
-            </button>
-          )}
-
+      <div className={`flex items-center justify-between w-full gap-3 ${className}`}>
+        {/* FilterChips - links */}
+        <div className="flex-1 flex flex-wrap gap-2">
           {/* Aktive Filter Chips */}
           {searchTerm && (
             <FilterChip
@@ -306,6 +338,33 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
               />
             ))}
         </div>
+
+        {/* Zurücksetzen Button - rechts */}
+        {activeFilterCount > 0 && (
+          <button
+            onClick={resetFilters}
+            className="flex items-center justify-center gap-1.5 flex-shrink-0 px-3 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-2 border-border"
+            type="button"
+            aria-label="Alle Filter zurücksetzen"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Zurücksetzen</span>
+          </button>
+        )}
       </div>
     );
   }
@@ -390,21 +449,57 @@ export function CompactHeaderFilter({ className }: CompactHeaderFilterProps) {
           )}
         </div>
 
-        {/* Fahndungsart-Buttons */}
-        <div className="flex items-center gap-2">
-          {FAHNDUNGSART_OPTIONS.slice(1).map((option) => (
-            <button
-              key={option.value}
-              onClick={() => handleFahndungsartSelect(option.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors border ${
-                fahndungsart === option.value
-                  ? `bg-${option.color}-100 text-${option.color}-800 border-${option.color}-300 dark:bg-${option.color}-900/30 dark:text-${option.color}-300 dark:border-${option.color}-700`
-                  : "bg-background border-border text-foreground hover:bg-accent"
+        {/* Fahndungsart-Dropdown */}
+        <div className="relative" ref={fahndungsartDropdownRef}>
+          <button
+            onClick={() => setShowFahndungsartDropdown(!showFahndungsartDropdown)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors border flex items-center gap-2 ${
+              fahndungsart !== "alle"
+                ? getFahndungsartButtonClasses(
+                    FAHNDUNGSART_OPTIONS.find((o) => o.value === fahndungsart)?.color || "blue",
+                    true
+                  )
+                : "bg-background border-border text-foreground hover:bg-accent"
+            }`}
+          >
+            {fahndungsart === "alle"
+              ? "Fahndungsart"
+              : FAHNDUNGSART_OPTIONS.find((o) => o.value === fahndungsart)?.label || "Fahndungsart"}
+            <svg
+              className={`h-4 w-4 transition-transform ${
+                showFahndungsartDropdown ? "rotate-180" : ""
               }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {option.label}
-            </button>
-          ))}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {/* Dropdown für Fahndungsart */}
+          {showFahndungsartDropdown && (
+            <div className="absolute right-0 top-10 z-50 bg-background border border-border rounded-md shadow-lg py-1 min-w-[160px]">
+              {FAHNDUNGSART_OPTIONS.slice(1).map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    handleFahndungsartSelect(option.value);
+                    setShowFahndungsartDropdown(false);
+                  }}
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-accent ${
+                    fahndungsart === option.value ? "bg-accent font-medium" : ""
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Dienststellen - Karte */}

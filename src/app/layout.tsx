@@ -6,6 +6,7 @@ import "@/styles/glassmorphism-header.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import ModernHeader from "@/components/layout/header/ModernHeader";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { FilterProvider } from "@/contexts/FilterContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,8 +50,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="layout-shell">
-            <ModernHeader />
+          <FilterProvider>
+            <div className="layout-shell">
+              <ModernHeader />
 
             <main
               id="main-content"
@@ -63,6 +65,7 @@ export default function RootLayout({
 
             <SiteFooter />
           </div>
+          </FilterProvider>
         </ThemeProvider>
       </body>
     </html>
