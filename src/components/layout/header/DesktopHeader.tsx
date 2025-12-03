@@ -26,13 +26,7 @@ interface DesktopHeaderProps {
  * DesktopHeader Component
  * Desktop-spezifische Navigation mit Dropdown-Menüs
  */
-export default function DesktopHeader({
-  onFilterToggle: _onFilterToggle,
-  isFilterOpen: _isFilterOpen = false,
-  onFilterClose,
-  resultCount: _resultCount,
-  hasActiveFilters: _propHasActiveFilters,
-}: DesktopHeaderProps) {
+export default function DesktopHeader({ onFilterClose }: DesktopHeaderProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -229,22 +223,22 @@ export default function DesktopHeader({
   return (
     <>
       {/* Center Actions - Search, Theme Toggle, Plus Button, Hamburger Menu, Filter */}
-      <div className="hidden items-center gap-3 desktop:flex">
+      <div className="flex items-center gap-3">
         {/* Search-Gruppe: Prominente Suche - größtes Element */}
-        <div className="hidden items-center justify-center desktop:flex">
+        <div className="flex items-center justify-center">
           <HeaderSearch />
         </div>
 
         {/* Separator */}
-        <div className="hidden h-8 w-px bg-border/60 desktop:block" />
+        <div className="h-8 w-px bg-border/60" />
 
         {/* Theme Toggle - nur auf Desktop */}
-        <div className="hidden desktop:flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <VerticalThemeToggle />
         </div>
 
         {/* Separator */}
-        <div className="hidden h-8 w-px bg-border/60 desktop:block" />
+        <div className="h-8 w-px bg-border/60" />
 
         {/* Plus Icon für neue Fahndung - nur wenn angemeldet */}
         {isAuthenticated && (
@@ -258,7 +252,7 @@ export default function DesktopHeader({
               <Plus className="h-5 w-5" />
             </Link>
             {/* Separator */}
-            <div className="hidden h-8 w-px bg-border/60 desktop:block" />
+            <div className="h-8 w-px bg-border/60" />
           </>
         )}
 

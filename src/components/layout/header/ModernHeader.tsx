@@ -19,12 +19,38 @@ import { useFilter } from "@/contexts/FilterContext";
  * Responsive Verhalten: In mobilen Zuständen ohne Abstand am oberen Rand und ohne Scroll-Animation
  */
 export default function ModernHeader() {
-  const [isMobile, setIsMobile] = useState(false);
+  // Initialisiere isMobile basierend auf Fensterbreite (wenn verfügbar)
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth <= 1280;
+    }
+    return false; // SSR: Standard auf Desktop
+  });
   // Desktop: Filterleiste immer offen, Mobile: kann geöffnet/geschlossen werden
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("grid-4");
+  const [isFilterOpen, setIsFilterOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth > 1280; // Desktop: Filterleiste offen
+    }
+    return true; // SSR: Standard auf Desktop
+  });
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== "undefined") {
+      const savedViewMode = localStorage.getItem(
+        "fahndung-view-mode"
+      ) as ViewMode | null;
+      if (
+        savedViewMode &&
+        (savedViewMode === "grid-3" ||
+          savedViewMode === "grid-4" ||
+          savedViewMode === "list-flat")
+      ) {
+        return savedViewMode;
+      }
+    }
+    return "grid-4";
+  });
   const [resultCount, setResultCount] = useState<number | undefined>(undefined);
-  
+
   // CSS-only Scroll-Detection ohne Re-Renders
   const { headerRef, spacerRef } = useScrollDetection();
   const { filters } = useFilter();
@@ -32,41 +58,49 @@ export default function ModernHeader() {
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [selectedStations, setSelectedStations] = useState<string[]>([]);
   const [selectedSubStations, setSelectedSubStations] = useState<string[]>([]);
-  
+
   // Lade Filter aus localStorage (PP-Segmente, Districts, Stations, Sub-Stations)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const loadFilters = () => {
         try {
           // PP-Segmente
-          const savedSegments = localStorage.getItem('fahndung-selected-segments');
+          const savedSegments = localStorage.getItem(
+            "fahndung-selected-segments"
+          );
           if (savedSegments) {
             const segments = JSON.parse(savedSegments) as string[];
             setPPSegments(segments);
           } else {
             setPPSegments([]);
           }
-          
+
           // Districts
-          const savedDistricts = localStorage.getItem('fahndung-selected-districts');
+          const savedDistricts = localStorage.getItem(
+            "fahndung-selected-districts"
+          );
           if (savedDistricts) {
             const districts = JSON.parse(savedDistricts) as string[];
             setSelectedDistricts(districts);
           } else {
             setSelectedDistricts([]);
           }
-          
+
           // Stations
-          const savedStations = localStorage.getItem('fahndung-selected-stations');
+          const savedStations = localStorage.getItem(
+            "fahndung-selected-stations"
+          );
           if (savedStations) {
             const stations = JSON.parse(savedStations) as string[];
             setSelectedStations(stations);
           } else {
             setSelectedStations([]);
           }
-          
+
           // Sub-Stations
-          const savedSubStations = localStorage.getItem('fahndung-selected-sub-stations');
+          const savedSubStations = localStorage.getItem(
+            "fahndung-selected-sub-stations"
+          );
           if (savedSubStations) {
             const subStations = JSON.parse(savedSubStations) as string[];
             setSelectedSubStations(subStations);
@@ -74,41 +108,41 @@ export default function ModernHeader() {
             setSelectedSubStations([]);
           }
         } catch (e) {
-          console.error('Fehler beim Laden der Filter:', e);
+          console.error("Fehler beim Laden der Filter:", e);
           setPPSegments([]);
           setSelectedDistricts([]);
           setSelectedStations([]);
           setSelectedSubStations([]);
         }
       };
-      
+
       loadFilters();
-      
+
       // Höre auf Änderungen
       const handleStorageChange = (e: StorageEvent) => {
-        if (e.key?.startsWith('fahndung-selected-')) {
+        if (e.key?.startsWith("fahndung-selected-")) {
           loadFilters();
         }
       };
-      
+
       const handleCustomEvent = (e: Event) => {
         const customEvent = e as CustomEvent<{ key: string; value: string }>;
-        if (customEvent.detail?.key?.startsWith('fahndung-selected-')) {
+        if (customEvent.detail?.key?.startsWith("fahndung-selected-")) {
           loadFilters();
         }
       };
-      
-      window.addEventListener('storage', handleStorageChange);
-      window.addEventListener('fahndung-filter-change', handleCustomEvent);
-      
+
+      window.addEventListener("storage", handleStorageChange);
+      window.addEventListener("fahndung-filter-change", handleCustomEvent);
+
       return () => {
-        window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('fahndung-filter-change', handleCustomEvent);
+        window.removeEventListener("storage", handleStorageChange);
+        window.removeEventListener("fahndung-filter-change", handleCustomEvent);
       };
     }
     return undefined;
   }, []);
-  
+
   // Prüfe ob aktive Filter vorhanden sind (inkl. alle localStorage-Filter)
   const hasActiveFilters = useMemo(() => {
     const active = !!(
@@ -127,31 +161,27 @@ export default function ModernHeader() {
       selectedSubStations.length > 0
     );
     return active;
-  }, [filters, ppSegments, selectedDistricts, selectedStations, selectedSubStations]);
-
-  // Lade viewMode aus localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedViewMode = localStorage.getItem('fahndung-view-mode') as ViewMode | null;
-      if (savedViewMode && (savedViewMode === "grid-3" || savedViewMode === "grid-4" || savedViewMode === "list-flat")) {
-        setViewMode(savedViewMode);
-      }
-    }
-  }, []);
+  }, [
+    filters,
+    ppSegments,
+    selectedDistricts,
+    selectedStations,
+    selectedSubStations,
+  ]);
 
   // Speichere viewMode in localStorage
   const handleViewChange = (view: ViewMode) => {
     setViewMode(view);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('fahndung-view-mode', view);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("fahndung-view-mode", view);
       // Dispatch Custom Event für andere Komponenten auf der gleichen Seite
-      window.dispatchEvent(new CustomEvent('viewModeChange', { detail: view }));
+      window.dispatchEvent(new CustomEvent("viewModeChange", { detail: view }));
     }
   };
 
   // Höre auf Custom Events für viewMode-Änderungen (von HomeContent)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const handleViewModeChange = (e: CustomEvent<ViewMode>) => {
       setViewMode(e.detail);
@@ -162,11 +192,23 @@ export default function ModernHeader() {
       setResultCount(e.detail.count);
     };
 
-    window.addEventListener('viewModeChange', handleViewModeChange as EventListener);
-    window.addEventListener('fahndung-result-count-update', handleResultCountUpdate as EventListener);
+    window.addEventListener(
+      "viewModeChange",
+      handleViewModeChange as EventListener
+    );
+    window.addEventListener(
+      "fahndung-result-count-update",
+      handleResultCountUpdate as EventListener
+    );
     return () => {
-      window.removeEventListener('viewModeChange', handleViewModeChange as EventListener);
-      window.removeEventListener('fahndung-result-count-update', handleResultCountUpdate as EventListener);
+      window.removeEventListener(
+        "viewModeChange",
+        handleViewModeChange as EventListener
+      );
+      window.removeEventListener(
+        "fahndung-result-count-update",
+        handleResultCountUpdate as EventListener
+      );
     };
   }, []);
 
@@ -196,9 +238,9 @@ export default function ModernHeader() {
     checkMobile();
 
     // Event listener für Resize
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Filterleiste schließen bei Navigation-Klicks entfernt - Filterleiste bleibt offen
@@ -229,11 +271,12 @@ export default function ModernHeader() {
         ref={headerRef}
         className={`
           fixed left-0 right-0 top-0 z-50 
-          ${isMobile 
-            ? 'h-14' // Mobile: Noch kompaktere Höhe ohne Animation
-            : hasActiveFilters && !isMobile
-              ? 'h-auto min-h-20 transition-all duration-300 ease-out [&.scrolled]:min-h-16' // Desktop: Erweitert wenn Filter aktiv
-              : 'h-20 transition-all duration-300 ease-out [&.scrolled]:h-16' // Desktop: Mit Animation
+          ${
+            isMobile
+              ? "h-14" // Mobile: Noch kompaktere Höhe ohne Animation
+              : hasActiveFilters && !isMobile
+                ? "h-auto min-h-20 transition-all duration-300 ease-out [&.scrolled]:min-h-16" // Desktop: Erweitert wenn Filter aktiv
+                : "h-20 transition-all duration-300 ease-out [&.scrolled]:h-16" // Desktop: Mit Animation
           }
         `}
         role="banner"
@@ -243,14 +286,17 @@ export default function ModernHeader() {
         <div
           className={`
           glass-header glass-header-container mx-auto
-          ${hasActiveFilters && !isMobile ? 'min-h-full' : 'h-full'} max-w-[1273px]
-          ${isMobile 
-            ? 'mt-0 rounded-none' // Mobile: Kein Abstand, keine abgerundeten Ränder
-            : 'mt-4 rounded-[10px] transition-all duration-300 [.scrolled_&]:mt-0' // Desktop: Mit Animation und Rundungen
+          ${hasActiveFilters && !isMobile ? "min-h-full" : "h-full"} max-w-[1273px]
+          ${
+            isMobile
+              ? "mt-0 rounded-none" // Mobile: Kein Abstand, keine abgerundeten Ränder
+              : "mt-4 rounded-[10px] transition-all duration-300 [.scrolled_&]:mt-0" // Desktop: Mit Animation und Rundungen
           }
         `}
         >
-          <div className={`${hasActiveFilters && !isMobile ? 'py-4' : 'h-full'} px-4 sm:px-6 lg:px-8`}>
+          <div
+            className={`${hasActiveFilters && !isMobile ? "py-4" : "h-full"} px-4 sm:px-6 lg:px-8`}
+          >
             {/* Erste Zeile: Logo, Filter, Suchsymbol - immer in einer Reihe */}
             <div className="relative flex h-full items-center">
               {/* Logo - verkleinert, ca. 25-30% optisch */}
@@ -261,8 +307,8 @@ export default function ModernHeader() {
               {/* Desktop: Filter zwischen Logo und Suchsymbol */}
               {!isMobile && (
                 <div className="flex-1 flex items-center justify-center min-w-0 mx-4 sm:mx-6 lg:mx-8">
-                  <FilterPanel 
-                    isOpen={isFilterOpen} 
+                  <FilterPanel
+                    isOpen={isFilterOpen}
                     onClose={closeFilter}
                     onToggle={toggleFilter}
                     isMobile={false}
@@ -276,79 +322,92 @@ export default function ModernHeader() {
               )}
 
               {/* Desktop Header - mit gleichmäßigen Abständen - nur ab 1281px */}
-              <div className="hidden desktop:block flex-shrink-0 ml-auto">
-                <DesktopHeader 
-                  onFilterToggle={toggleFilter} 
-                  isFilterOpen={isFilterOpen}
-                  onFilterClose={closeFilter}
-                  resultCount={resultCount}
-                  hasActiveFilters={hasActiveFilters}
-                />
-              </div>
-
-              {/* Mobile Header mit rechten Aktionen - bis 1280px */}
-              <div className="flex items-center ml-auto desktop:hidden">
-                {/* Filter Icon - zuerst mit mehr Platz */}
-                <button
-                  onClick={toggleFilter}
-                  className="relative flex items-center justify-center text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-300 mr-6"
-                  aria-expanded={isFilterOpen}
-                  aria-label="Filter öffnen"
-                >
-                  <FilterIcon size={28} className="h-7 w-7" />
-                  {/* Badge - zeigt gefilterte Ergebnisse wenn Filter aktiv, sonst normale Badge */}
-                  {resultCount !== undefined && resultCount >= 0 && (
-                    <span 
-                      className={`absolute top-0 right-0 translate-x-full -translate-y-1/2 font-bold rounded-full flex items-center justify-center ${
-                        hasActiveFilters 
-                          ? 'bg-blue-600 text-white dark:bg-blue-500 dark:text-white' 
-                          : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                      }`}
-                      style={{
-                        width: hasActiveFilters ? 'auto' : '18px',
-                        height: hasActiveFilters ? '22px' : '18px',
-                        minWidth: hasActiveFilters ? '22px' : '18px',
-                        padding: hasActiveFilters ? '0 6px' : '0',
-                        fontSize: hasActiveFilters ? '11px' : '9px',
-                        lineHeight: '1',
-                        fontWeight: 'bold'
-                      }}
-                      title={hasActiveFilters ? 'Gefilterte Fahndungen' : 'Alle Fahndungen'}
-                    >
-                      {hasActiveFilters 
-                        ? (resultCount > 999 ? '999+' : String(resultCount))
-                        : (resultCount >= 10000 ? '10k+' : (resultCount > 999 ? '999+' : String(resultCount)))
-                      }
-                    </span>
-                  )}
-                </button>
-                
-                {/* Theme Toggle und Hamburger Menu - weiter rechts */}
-                <div className="flex items-center gap-3">
-                  {/* Separator */}
-                  <div className="h-6 w-px bg-border/60" />
-                  
-                  {/* Theme Toggle - zweitens */}
-                  <VerticalThemeToggle />
-                  
-                  {/* Separator */}
-                  <div className="h-6 w-px bg-border/60" />
-                  
-                  {/* Hamburger Menu - zuletzt */}
-                  <MobileHeader 
-                    onFilterToggle={toggleFilter} 
+              {!isMobile && (
+                <div className="flex-shrink-0 ml-auto">
+                  <DesktopHeader
+                    onFilterToggle={toggleFilter}
                     isFilterOpen={isFilterOpen}
                     onFilterClose={closeFilter}
+                    resultCount={resultCount}
+                    hasActiveFilters={hasActiveFilters}
                   />
                 </div>
-              </div>
+              )}
+
+              {/* Mobile Header mit rechten Aktionen - bis 1280px */}
+              {isMobile && (
+                <div className="flex items-center ml-auto">
+                  {/* Filter Icon - zuerst mit mehr Platz */}
+                  <button
+                    onClick={toggleFilter}
+                    className="relative flex items-center justify-center text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-300 mr-6"
+                    aria-expanded={isFilterOpen}
+                    aria-label="Filter öffnen"
+                  >
+                    <FilterIcon size={28} className="h-7 w-7" />
+                    {/* Badge - zeigt gefilterte Ergebnisse wenn Filter aktiv, sonst normale Badge */}
+                    {resultCount !== undefined && resultCount >= 0 && (
+                      <span
+                        className={`absolute top-0 right-0 translate-x-full -translate-y-1/2 font-bold rounded-full flex items-center justify-center ${
+                          hasActiveFilters
+                            ? "bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
+                            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                        }`}
+                        style={{
+                          width: hasActiveFilters ? "auto" : "18px",
+                          height: hasActiveFilters ? "22px" : "18px",
+                          minWidth: hasActiveFilters ? "22px" : "18px",
+                          padding: hasActiveFilters ? "0 6px" : "0",
+                          fontSize: hasActiveFilters ? "11px" : "9px",
+                          lineHeight: "1",
+                          fontWeight: "bold",
+                        }}
+                        title={
+                          hasActiveFilters
+                            ? "Gefilterte Fahndungen"
+                            : "Alle Fahndungen"
+                        }
+                      >
+                        {hasActiveFilters
+                          ? resultCount > 999
+                            ? "999+"
+                            : String(resultCount)
+                          : resultCount >= 10000
+                            ? "10k+"
+                            : resultCount > 999
+                              ? "999+"
+                              : String(resultCount)}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Theme Toggle und Hamburger Menu - weiter rechts */}
+                  <div className="flex items-center gap-3">
+                    {/* Separator */}
+                    <div className="h-6 w-px bg-border/60" />
+
+                    {/* Theme Toggle - zweitens */}
+                    <VerticalThemeToggle />
+
+                    {/* Separator */}
+                    <div className="h-6 w-px bg-border/60" />
+
+                    {/* Hamburger Menu - zuletzt */}
+                    <MobileHeader
+                      onFilterToggle={toggleFilter}
+                      isFilterOpen={isFilterOpen}
+                      onFilterClose={closeFilter}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            
+
             {/* Zweite Zeile: FilterChips (links) und Zurücksetzen (rechts) - nur wenn Filter aktiv */}
             {hasActiveFilters && !isMobile && (
               <div className="mt-3 pt-3 border-t border-border">
-                <FilterPanel 
-                  isOpen={isFilterOpen} 
+                <FilterPanel
+                  isOpen={isFilterOpen}
                   onClose={closeFilter}
                   onToggle={toggleFilter}
                   isMobile={false}
@@ -362,29 +421,30 @@ export default function ModernHeader() {
               </div>
             )}
           </div>
-          </div>
+        </div>
       </header>
 
       {/* Spacer für fixed Header */}
-      <div 
-        ref={spacerRef} 
+      <div
+        ref={spacerRef}
         className={`
-          ${isMobile 
-            ? 'h-14' // Mobile: Kompaktere Höhe ohne Animation
-            : hasActiveFilters && !isMobile
-              ? 'min-h-20 transition-all duration-300 [.scrolled_&]:min-h-16' // Desktop: Erweitert wenn Filter aktiv
-              : 'h-20 transition-all duration-300 [.scrolled_&]:h-16' // Desktop: Mit Animation
+          ${
+            isMobile
+              ? "h-14" // Mobile: Kompaktere Höhe ohne Animation
+              : hasActiveFilters && !isMobile
+                ? "min-h-20 transition-all duration-300 [.scrolled_&]:min-h-16" // Desktop: Erweitert wenn Filter aktiv
+                : "h-20 transition-all duration-300 [.scrolled_&]:h-16" // Desktop: Mit Animation
           }
-        `} 
+        `}
       />
 
       {/* Filter Panel - nur für Mobile, Desktop ist im Header integriert */}
       {isMobile && (
-        <FilterPanel 
-          isOpen={isFilterOpen} 
+        <FilterPanel
+          isOpen={isFilterOpen}
           onClose={() => {
             setIsFilterOpen(false);
-          }} 
+          }}
           isMobile={isMobile}
           headerRef={headerRef}
           resultCount={resultCount}
@@ -400,4 +460,3 @@ export default function ModernHeader() {
     </>
   );
 }
-

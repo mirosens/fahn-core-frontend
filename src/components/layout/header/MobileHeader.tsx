@@ -18,11 +18,7 @@ interface MobileHeaderProps {
  * MobileHeader Component
  * Mobile-spezifische Navigation mit Hamburger-Menü
  */
-export default function MobileHeader({
-  onFilterToggle: _onFilterToggle,
-  isFilterOpen: _isFilterOpen = false,
-  onFilterClose,
-}: MobileHeaderProps) {
+export default function MobileHeader({ onFilterClose }: MobileHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -90,7 +86,7 @@ export default function MobileHeader({
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="p-2 text-foreground hover:bg-accent focus:outline-none focus:ring-1 focus:ring-primary/50 desktop:hidden"
+        className="p-2 text-foreground hover:bg-accent focus:outline-none focus:ring-1 focus:ring-primary/50"
         aria-label="Mobilmenü öffnen"
         aria-expanded={isMobileMenuOpen}
         onMouseLeave={handleMouseLeave}

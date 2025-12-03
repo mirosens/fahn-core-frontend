@@ -2,10 +2,15 @@ import plugin from "tailwindcss/plugin";
 
 // tailwind.config.ts
 const tailwindConfig = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
   theme: {
     extend: {
       screens: {
-        desktop: "1281px", // Desktop Header ab 1281px
+        desktop: "1281px", // Desktop Header ab 1281px - Mobile bis 1280px, Desktop ab 1281px
       },
       transformStyle: {
         "3d": "preserve-3d",
