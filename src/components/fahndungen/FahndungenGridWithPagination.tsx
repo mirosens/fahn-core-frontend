@@ -14,6 +14,9 @@ interface FahndungenGridWithPaginationProps {
   showItemsInfo?: boolean;
   onFahndungClick?: (fahndung: FahndungItem) => void;
   className?: string;
+  // Externe Pagination-State (optional für externe Steuerung)
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export function FahndungenGridWithPagination({
@@ -24,8 +27,14 @@ export function FahndungenGridWithPagination({
   showItemsInfo = true,
   onFahndungClick,
   className = "",
+  currentPage: externalCurrentPage,
+  onPageChange: externalOnPageChange,
 }: FahndungenGridWithPaginationProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [internalCurrentPage, setInternalCurrentPage] = useState(1);
+
+  // Verwende externe Pagination-State falls vorhanden, sonst interne
+  const currentPage = externalCurrentPage ?? internalCurrentPage;
+  const setCurrentPage = externalOnPageChange ?? setInternalCurrentPage;
 
   // Paginierte Items berechnen
   const paginatedFahndungen = useMemo(() => {
@@ -44,7 +53,7 @@ export function FahndungenGridWithPagination({
       }, 0);
       return () => clearTimeout(timeoutId);
     }
-  }, [fahndungen.length, itemsPerPage, currentPage]);
+  }, [fahndungen.length, itemsPerPage, currentPage, setCurrentPage]);
 
   // Grid-Klassen basierend auf viewMode
   const getGridClasses = () => {

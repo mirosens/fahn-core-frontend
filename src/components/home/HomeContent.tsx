@@ -8,6 +8,7 @@ import {
   ViewModeDropdown,
   type ViewMode,
 } from "@/components/ui/ViewModeDropdown";
+import { CompactPagination } from "@/components/ui/CompactPagination";
 import { useFahndungen } from "@/hooks/useFahndungen";
 import { useStableSearchParams } from "@/hooks/useStableSearchParams";
 import type { FahndungItem } from "@/lib/typo3Client";
@@ -33,6 +34,7 @@ export default function HomeContent() {
     null
   );
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
+  const [currentPage, setCurrentPage] = useState(1);
   const lastCountRef = useRef<number | null>(null);
 
   // Verwende Custom Hooks für stabilisierte searchParams und Data Fetching
@@ -203,6 +205,19 @@ export default function HomeContent() {
     });
   }, [fahndungen, searchTerm, fahndungsart, dienststelle]);
 
+  // Reset currentPage wenn sich die Gesamtanzahl der Items ändert
+  useEffect(() => {
+    if (!filteredFahndungen) return;
+    const totalPages = Math.ceil(filteredFahndungen.length / itemsPerPage);
+    if (currentPage > totalPages && totalPages > 0) {
+      // Verwende setTimeout, um setState asynchron aufzurufen
+      const timeoutId = setTimeout(() => {
+        setCurrentPage(1);
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [filteredFahndungen, itemsPerPage, currentPage]);
+
   // Debug: Log gefilterte Fahndungen
   useEffect(() => {
     if (mounted) {
@@ -276,11 +291,26 @@ export default function HomeContent() {
       <div className="bg-gradient-to-b from-slate-50 via-blue-50/30 to-white dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 -mt-2">
         <div className="container mx-auto px-4 pt-12 lg:pt-16 pb-8">
           {/* Fahndungsübersicht Titel */}
-          <div className="mb-1 flex items-center justify-between">
+          <div className="mb-1 grid grid-cols-3 items-center">
             <h2 className="text-2xl font-bold text-foreground dark:text-white">
               Fahndungsübersicht
             </h2>
-            <div className="min-w-[120px]">
+            {/* Kompakte Pagination - nur Desktop, zentriert */}
+            <div className="hidden lg:flex justify-center">
+              {!isLoading &&
+                !error &&
+                filteredFahndungen.length > itemsPerPage && (
+                  <div className="rounded-lg border border-border bg-background pl-2.5 pr-1 py-1">
+                    <CompactPagination
+                      currentPage={currentPage}
+                      totalItems={filteredFahndungen.length}
+                      itemsPerPage={itemsPerPage}
+                      onPageChange={setCurrentPage}
+                    />
+                  </div>
+                )}
+            </div>
+            <div className="flex justify-end min-w-[120px]">
               <ViewModeDropdown
                 viewMode={viewMode}
                 onViewChange={handleViewModeChange}
@@ -327,6 +357,8 @@ export default function HomeContent() {
                   showPagination={true}
                   showItemsInfo={true}
                   onFahndungClick={(fahndung) => setSelectedFahndung(fahndung)}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
                 />
               ) : (
                 <div className="rounded-lg border border-border bg-white p-8 text-center shadow-xs dark:border-border dark:bg-muted">
