@@ -10,7 +10,7 @@ import { EyeOff } from "lucide-react";
 interface FlipCardProps {
   fahndung: FahndungItem;
   onDetailsClick: () => void;
-  layoutMode?: "default" | "grid-4";
+  layoutMode?: "default" | "grid-4" | "grid-3";
   isCarousel?: boolean;
 }
 
@@ -100,12 +100,20 @@ export function FlipCard({
     }
   }, [isFlipped]);
 
-  const cardHeight = layoutMode === "grid-4" ? "430px" : "513px";
+  const cardHeight =
+    layoutMode === "grid-4"
+      ? "430px"
+      : layoutMode === "grid-3"
+        ? "500px"
+        : "513px";
 
   return (
     <section
       ref={cardRef}
-      className="relative mx-auto w-full max-w-sm"
+      className={cn(
+        "relative mx-auto w-full",
+        layoutMode === "grid-3" ? "" : "max-w-sm"
+      )}
       style={{
         height: cardHeight,
         perspective: "1000px",
@@ -137,10 +145,14 @@ export function FlipCard({
           <div
             className={cn(
               "relative w-full overflow-hidden bg-muted dark:bg-muted rounded-t-[10px]",
-              layoutMode === "grid-4" && "aspect-square flex-shrink-0"
+              (layoutMode === "grid-4" || layoutMode === "grid-3") &&
+                "aspect-square flex-shrink-0"
             )}
             style={{
-              height: layoutMode === "grid-4" ? undefined : "65%",
+              height:
+                layoutMode === "grid-4" || layoutMode === "grid-3"
+                  ? undefined
+                  : "65%",
             }}
           >
             {/* Logo oben links */}
@@ -189,12 +201,22 @@ export function FlipCard({
           <div
             className={cn(
               "flex flex-1 flex-col justify-start text-left",
-              layoutMode === "grid-4" ? "flex-shrink-0" : "h-1/3"
+              layoutMode === "grid-4" || layoutMode === "grid-3"
+                ? "flex-shrink-0"
+                : "h-1/3"
             )}
             style={{
               contain: "layout style paint",
-              minHeight: layoutMode === "grid-4" ? "80px" : "193px",
-              height: layoutMode === "grid-4" ? "auto" : undefined,
+              minHeight:
+                layoutMode === "grid-4"
+                  ? "80px"
+                  : layoutMode === "grid-3"
+                    ? "80px"
+                    : "193px",
+              height:
+                layoutMode === "grid-4" || layoutMode === "grid-3"
+                  ? "auto"
+                  : undefined,
               cursor: "pointer",
               paddingTop: "0rem",
               paddingBottom: "0.5rem",
@@ -205,15 +227,25 @@ export function FlipCard({
             <div
               className="space-y-1.5"
               style={{
-                paddingTop: layoutMode === "grid-4" ? "0.5rem" : "0.75rem",
-                paddingBottom: layoutMode === "grid-4" ? "0.5rem" : "0rem",
+                paddingTop:
+                  layoutMode === "grid-4" || layoutMode === "grid-3"
+                    ? "0.5rem"
+                    : "0.75rem",
+                paddingBottom:
+                  layoutMode === "grid-4" || layoutMode === "grid-3"
+                    ? "0.5rem"
+                    : "0rem",
               }}
             >
               {/* Meta: Stadt · Datum · Kategorie */}
               <div
                 className={cn(
                   "flex items-center gap-1.5 font-medium text-muted-foreground dark:text-muted-foreground",
-                  layoutMode === "grid-4" ? "text-[11px]" : "text-[13px]"
+                  layoutMode === "grid-4"
+                    ? "text-[11px]"
+                    : layoutMode === "grid-3"
+                      ? "text-[12px]"
+                      : "text-[13px]"
                 )}
               >
                 {fahndung.location && (
@@ -244,13 +276,19 @@ export function FlipCard({
                     className={cn(
                       "rounded-full backdrop-blur-sm border",
                       getCategoryBadgeColor(fahndung.type),
-                      layoutMode === "grid-4" ? "px-2 py-0.5" : "px-2.5 py-1"
+                      layoutMode === "grid-4" || layoutMode === "grid-3"
+                        ? "px-2 py-0.5"
+                        : "px-2.5 py-1"
                     )}
                   >
                     <span
                       className={cn(
                         "font-inter font-medium text-white text-center drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] tracking-wide whitespace-nowrap",
-                        layoutMode === "grid-4" ? "text-[10px]" : "text-[11px]"
+                        layoutMode === "grid-4"
+                          ? "text-[10px]"
+                          : layoutMode === "grid-3"
+                            ? "text-[11px]"
+                            : "text-[11px]"
                       )}
                       style={{ fontVariationSettings: '"wght" 500' }}
                     >
@@ -268,7 +306,11 @@ export function FlipCard({
               <div
                 className={cn(
                   "mt-2.5 line-clamp-2 font-bold leading-tight text-muted-foreground dark:text-white",
-                  layoutMode === "grid-4" ? "text-sm" : "text-base"
+                  layoutMode === "grid-4"
+                    ? "text-sm"
+                    : layoutMode === "grid-3"
+                      ? "text-base"
+                      : "text-base"
                 )}
               >
                 {fahndung.title}

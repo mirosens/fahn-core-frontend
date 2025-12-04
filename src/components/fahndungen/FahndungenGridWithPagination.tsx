@@ -53,7 +53,7 @@ export function FahndungenGridWithPagination({
         return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
       case "grid-3":
       default:
-        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3";
     }
   };
 
@@ -64,7 +64,7 @@ export function FahndungenGridWithPagination({
         return "gap-6"; // Kompaktere 24px Abstände für 4er-Grid
       case "grid-3":
       default:
-        return "gap-x-8 gap-y-12"; // Mehr vertikaler Abstand für 3er-Grid
+        return "gap-6"; // Gleiche Abstände wie bei 4er-Grid
     }
   };
 
@@ -78,7 +78,13 @@ export function FahndungenGridWithPagination({
           <FlipCard
             key={fahndung.id}
             fahndung={fahndung}
-            layoutMode={viewMode === "grid-4" ? "grid-4" : "default"}
+            layoutMode={
+              viewMode === "grid-4"
+                ? "grid-4"
+                : viewMode === "grid-3"
+                  ? "grid-3"
+                  : "default"
+            }
             onDetailsClick={() => {
               if (onFahndungClick) {
                 onFahndungClick(fahndung);
