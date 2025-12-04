@@ -4,9 +4,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { FahndungItem } from "@/lib/typo3Client";
-import { FahndungCardLink } from "./FahndungCardLink";
 import NeuBadge from "@/components/ui/NeuBadge";
-import { ArrowRight, EyeOff } from "lucide-react";
+import { EyeOff } from "lucide-react";
 
 interface FlipCardProps {
   fahndung: FahndungItem;
@@ -101,7 +100,7 @@ export function FlipCard({
     }
   }, [isFlipped]);
 
-  const cardHeight = layoutMode === "grid-4" ? "400px" : "513px";
+  const cardHeight = layoutMode === "grid-4" ? "430px" : "513px";
 
   return (
     <section
@@ -136,9 +135,12 @@ export function FlipCard({
         >
           {/* Image Section */}
           <div
-            className="relative w-full overflow-hidden bg-muted dark:bg-muted rounded-t-[10px]"
+            className={cn(
+              "relative w-full overflow-hidden bg-muted dark:bg-muted rounded-t-[10px]",
+              layoutMode === "grid-4" && "aspect-square flex-shrink-0"
+            )}
             style={{
-              height: layoutMode === "grid-4" ? "65%" : "65%",
+              height: layoutMode === "grid-4" ? undefined : "65%",
             }}
           >
             {/* Logo oben links */}
@@ -187,14 +189,15 @@ export function FlipCard({
           <div
             className={cn(
               "flex flex-1 flex-col justify-start text-left",
-              layoutMode === "grid-4" ? "h-[35%]" : "h-1/3"
+              layoutMode === "grid-4" ? "flex-shrink-0" : "h-1/3"
             )}
             style={{
               contain: "layout style paint",
-              minHeight: layoutMode === "grid-4" ? "140px" : "193px",
+              minHeight: layoutMode === "grid-4" ? "80px" : "193px",
+              height: layoutMode === "grid-4" ? "auto" : undefined,
               cursor: "pointer",
               paddingTop: "0rem",
-              paddingBottom: "0.75rem",
+              paddingBottom: "0.5rem",
               paddingLeft: "0.625rem",
               paddingRight: "0.625rem",
             }}
@@ -275,7 +278,7 @@ export function FlipCard({
 
           {/* Controls - nur auf der Vorderseite sichtbar */}
           <div
-            className="absolute left-3 right-3 flex items-center justify-between gap-2 border-t border-border/50 pt-2 dark:border-border/50"
+            className="absolute left-3 right-3 flex items-center justify-end border-t border-border/50 pt-2 dark:border-border/50"
             style={{
               bottom: "0.75rem",
               opacity: isFlipped ? 0 : 1,
@@ -283,24 +286,6 @@ export function FlipCard({
               transition: "opacity 0.3s ease, visibility 0.3s ease",
             }}
           >
-            <div className="flex-1">
-              <FahndungCardLink slug={fahndung.slug}>
-                <button
-                  className="flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:border-border dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted min-h-[36px]"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onDetailsClick();
-                  }}
-                  aria-label="Mehr erfahren"
-                  tabIndex={0}
-                >
-                  <span>Mehr erfahren</span>
-                  <ArrowRight className="h-3 w-3" />
-                </button>
-              </FahndungCardLink>
-            </div>
-
             {/* Details Button */}
             <button
               className="flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:border-border dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted min-h-[36px]"
