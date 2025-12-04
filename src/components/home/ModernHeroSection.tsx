@@ -21,7 +21,7 @@ export function ModernHeroSection({ fahndungen }: ModernHeroSectionProps) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.1, ease: "easeOut" }}
-          className="text-center mb-12 lg:mb-16 will-change-transform"
+          className="text-center mb-6 lg:mb-8 will-change-transform"
         >
           <h1
             className="text-[clamp(1.75rem,4vw,2.75rem)] font-inter leading-tight tracking-tight"
@@ -39,7 +39,7 @@ export function ModernHeroSection({ fahndungen }: ModernHeroSectionProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.1, ease: "easeOut" }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 lg:gap-2">
             <FahndungenCarousel
               category="missing"
               title="Vermisste Personen"

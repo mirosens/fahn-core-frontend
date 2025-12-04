@@ -65,8 +65,8 @@ export function FahndungenCarousel({
 
         {/* Empty State */}
         <div
-          className="relative w-full mx-auto max-w-sm"
-          style={{ height: "400px" }}
+          className="relative w-full mx-auto max-w-[280px]"
+          style={{ height: "380px" }}
         >
           <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-800/30 backdrop-blur-sm flex items-center justify-center p-8">
             <p className="text-center text-slate-600 dark:text-slate-400 text-lg">
@@ -88,8 +88,8 @@ export function FahndungenCarousel({
         {/* Card Container */}
         <div className="relative">
           <div
-            className="relative w-full mx-auto max-w-sm"
-            style={{ height: "400px" }}
+            className="relative w-full mx-auto max-w-[280px]"
+            style={{ height: "380px" }}
           >
             <AnimatePresence mode="wait">
               {currentFahndung && (
@@ -121,7 +121,7 @@ export function FahndungenCarousel({
                       prev === 0 ? filteredFahndungen.length - 1 : prev - 1
                     )
                   }
-                  className="absolute -left-4 lg:-left-12 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-xl bg-white/30 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm opacity-40 group-hover:opacity-100 group-hover:bg-white dark:group-hover:bg-slate-800 group-hover:shadow-xl hover:scale-105 focus:opacity-100 focus:bg-white dark:focus:bg-slate-800 focus:shadow-xl focus:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:ring-offset-2 flex items-center justify-center"
+                  className="absolute -left-3 lg:-left-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-xl bg-white/30 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm opacity-40 group-hover:opacity-100 group-hover:bg-white dark:group-hover:bg-slate-800 group-hover:shadow-xl hover:scale-105 focus:opacity-100 focus:bg-white dark:focus:bg-slate-800 focus:shadow-xl focus:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:ring-offset-2 flex items-center justify-center"
                   aria-label="Vorherige Fahndung"
                 >
                   <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-200" />
@@ -134,7 +134,7 @@ export function FahndungenCarousel({
                       (prev) => (prev + 1) % filteredFahndungen.length
                     )
                   }
-                  className="absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-xl bg-white/30 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm opacity-40 group-hover:opacity-100 group-hover:bg-white dark:group-hover:bg-slate-800 group-hover:shadow-xl hover:scale-105 focus:opacity-100 focus:bg-white dark:focus:bg-slate-800 focus:shadow-xl focus:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:ring-offset-2 flex items-center justify-center"
+                  className="absolute -right-3 lg:-right-8 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-xl bg-white/30 dark:bg-slate-800/30 backdrop-blur-sm shadow-sm opacity-40 group-hover:opacity-100 group-hover:bg-white dark:group-hover:bg-slate-800 group-hover:shadow-xl hover:scale-105 focus:opacity-100 focus:bg-white dark:focus:bg-slate-800 focus:shadow-xl focus:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:ring-offset-2 flex items-center justify-center"
                   aria-label="Nächste Fahndung"
                 >
                   <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-200" />
@@ -145,7 +145,7 @@ export function FahndungenCarousel({
 
           {/* Modern Pagination Dots - unter dem Carousel */}
           {filteredFahndungen.length > 1 && (
-            <div className="flex items-center justify-center gap-1.5 mt-6 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center justify-center gap-1.5 mt-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
               {filteredFahndungen.map((_item, idx) => (
                 <button
                   key={idx}
@@ -153,7 +153,9 @@ export function FahndungenCarousel({
                   className={cn(
                     "rounded-full transition-all duration-100 ease-out",
                     idx === currentIndex
-                      ? "w-8 h-2 bg-slate-500 dark:bg-slate-400"
+                      ? category === "missing"
+                        ? "w-8 h-2 bg-blue-500 dark:bg-blue-400"
+                        : "w-8 h-2 bg-red-500 dark:bg-red-400"
                       : "w-2 h-2 bg-slate-400 dark:bg-slate-600 hover:bg-slate-500 dark:hover:bg-slate-500"
                   )}
                   aria-label={`Zur Fahndung ${idx + 1} springen`}
