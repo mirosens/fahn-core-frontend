@@ -289,9 +289,9 @@ export default function HomeContent() {
 
       {/* Main Content */}
       <div className="bg-gradient-to-b from-slate-50 via-blue-50/30 to-white dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 -mt-2">
-        <div className="container mx-auto px-4 pt-12 lg:pt-16 pb-8">
+        <div className="container mx-auto px-4 pt-6 lg:pt-8 pb-8">
           {/* Fahndungsübersicht Titel */}
-          <div className="mb-1 grid grid-cols-3 items-center">
+          <div className="mb-1 lg:mb-6 grid grid-cols-3 items-center">
             <h2 className="text-2xl font-bold text-foreground dark:text-white">
               Fahndungsübersicht
             </h2>
