@@ -39,7 +39,7 @@ export function ModernHeroSection({ fahndungen }: ModernHeroSectionProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.1, ease: "easeOut" }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 lg:gap-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-4xl mx-auto">
             <FahndungenCarousel
               category="missing"
               title="Vermisste Personen"
