@@ -102,9 +102,9 @@ export function FlipCard({
 
   const cardHeight =
     layoutMode === "grid-4"
-      ? "430px"
+      ? "450px"
       : layoutMode === "grid-3"
-        ? "500px"
+        ? "580px"
         : "513px";
 
   return (
@@ -133,7 +133,12 @@ export function FlipCard({
       >
         {/* FRONT SIDE */}
         <div
-          className="absolute inset-0 flex h-full w-full flex-col overflow-hidden bg-white dark:bg-gray-800 rounded-[10px] shadow-xl"
+          className={cn(
+            "absolute inset-0 flex h-full w-full flex-col overflow-hidden rounded-[10px] shadow-xl",
+            layoutMode === "grid-4" || layoutMode === "grid-3"
+              ? "bg-transparent border border-border/20"
+              : "bg-white dark:bg-gray-800"
+          )}
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
@@ -144,9 +149,10 @@ export function FlipCard({
           {/* Image Section */}
           <div
             className={cn(
-              "relative w-full overflow-hidden bg-muted dark:bg-muted rounded-t-[10px]",
-              (layoutMode === "grid-4" || layoutMode === "grid-3") &&
-                "aspect-square flex-shrink-0"
+              "relative w-full overflow-hidden bg-muted dark:bg-muted",
+              layoutMode === "grid-4" || layoutMode === "grid-3"
+                ? "aspect-square flex-shrink-0 rounded-t-[10px]"
+                : "rounded-t-[10px]"
             )}
             style={{
               height:
@@ -197,45 +203,37 @@ export function FlipCard({
             {fahndung.isNew && !isFlipped && <NeuBadge variant="police" />}
           </div>
 
-          {/* Content Section */}
+          {/* Content Section - Unter dem Bild, ohne eigenen Rahmen/Hintergrund */}
           <div
             className={cn(
-              "flex flex-1 flex-col justify-start text-left",
+              "flex flex-1 flex-col text-left",
               layoutMode === "grid-4" || layoutMode === "grid-3"
-                ? "flex-shrink-0"
-                : "h-1/3"
+                ? "flex-shrink-0 px-4 pt-4 pb-4"
+                : "h-1/3 px-4 pt-4 pb-4"
             )}
             style={{
               contain: "layout style paint",
               minHeight:
                 layoutMode === "grid-4"
-                  ? "80px"
+                  ? "120px"
                   : layoutMode === "grid-3"
-                    ? "80px"
+                    ? "200px"
                     : "193px",
               height:
                 layoutMode === "grid-4" || layoutMode === "grid-3"
                   ? "auto"
                   : undefined,
-              cursor: "pointer",
-              paddingTop: "0rem",
-              paddingBottom: "0.5rem",
-              paddingLeft: "0.625rem",
-              paddingRight: "0.625rem",
             }}
           >
             <div
-              className="space-y-1.5"
-              style={{
-                paddingTop:
-                  layoutMode === "grid-4" || layoutMode === "grid-3"
-                    ? "0.5rem"
-                    : "0.75rem",
-                paddingBottom:
-                  layoutMode === "grid-4" || layoutMode === "grid-3"
-                    ? "0.5rem"
-                    : "0rem",
-              }}
+              className={cn(
+                "space-y-2",
+                layoutMode === "grid-4"
+                  ? "space-y-1.5"
+                  : layoutMode === "grid-3"
+                    ? "space-y-2"
+                    : "space-y-2"
+              )}
             >
               {/* Meta: Stadt · Datum · Kategorie */}
               <div
@@ -302,51 +300,52 @@ export function FlipCard({
                 )}
               </div>
 
-              {/* Titel */}
-              <div
-                className={cn(
-                  "mt-2.5 line-clamp-2 font-bold leading-tight text-muted-foreground dark:text-white",
-                  layoutMode === "grid-4"
-                    ? "text-sm"
-                    : layoutMode === "grid-3"
-                      ? "text-base"
-                      : "text-base"
-                )}
-              >
-                {fahndung.title}
+              {/* Titel und Button in einer Zeile */}
+              <div className="flex items-start justify-between gap-3">
+                {/* Titel */}
+                <div
+                  className={cn(
+                    "line-clamp-2 font-bold leading-tight text-foreground dark:text-white flex-1",
+                    layoutMode === "grid-4"
+                      ? "text-sm mt-1"
+                      : layoutMode === "grid-3"
+                        ? "text-base mt-1.5"
+                        : "text-base mt-2"
+                  )}
+                >
+                  {fahndung.title}
+                </div>
+
+                {/* Modern Button - Rechts neben dem Text */}
+                <div
+                  className="flex-shrink-0"
+                  style={{
+                    opacity: isFlipped ? 0 : 1,
+                    visibility: isFlipped ? "hidden" : "visible",
+                    transition: "opacity 0.3s ease, visibility 0.3s ease",
+                  }}
+                >
+                  <button
+                    className="flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95 min-h-[40px] whitespace-nowrap"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      flipCard();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        flipCard();
+                      }
+                    }}
+                    aria-label="Details anzeigen"
+                    tabIndex={0}
+                  >
+                    <span>Details</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Controls - nur auf der Vorderseite sichtbar */}
-          <div
-            className="absolute left-3 right-3 flex items-center justify-end border-t border-border/50 pt-2 dark:border-border/50"
-            style={{
-              bottom: "0.75rem",
-              opacity: isFlipped ? 0 : 1,
-              visibility: isFlipped ? "hidden" : "visible",
-              transition: "opacity 0.3s ease, visibility 0.3s ease",
-            }}
-          >
-            {/* Details Button */}
-            <button
-              className="flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-muted focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:border-border dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted min-h-[36px]"
-              onClick={(e) => {
-                e.stopPropagation();
-                flipCard();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  flipCard();
-                }
-              }}
-              aria-label="Details anzeigen"
-              tabIndex={0}
-            >
-              <span>Details</span>
-            </button>
           </div>
         </div>
 
