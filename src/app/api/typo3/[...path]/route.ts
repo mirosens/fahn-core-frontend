@@ -32,8 +32,6 @@ export async function GET(
       targetUrl.searchParams.set(key, value);
     });
 
-    console.log("[API Proxy] Proxying request to:", targetUrl.toString());
-
     // Führe die Anfrage serverseitig aus (kein CORS-Problem)
     const response = await fetch(targetUrl.toString(), {
       method: "GET",
@@ -45,13 +43,15 @@ export async function GET(
     });
 
     if (!response.ok) {
-      console.error(
-        "[API Proxy] Error response:",
-        response.status,
-        response.statusText
-      );
       const errorText = await response.text().catch(() => "Unknown error");
-      console.error("[API Proxy] Error body:", errorText);
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          "[API Proxy] Error response:",
+          response.status,
+          response.statusText
+        );
+        console.error("[API Proxy] Error body:", errorText);
+      }
       return NextResponse.json(
         {
           error: "TYPO3 API error",
@@ -73,7 +73,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("[API Proxy] Error:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[API Proxy] Error:", error);
+    }
     return NextResponse.json(
       {
         error: "Proxy error",

@@ -62,14 +62,7 @@ export default function HomeContent() {
 
   // Gefilterte Fahndungen basierend auf URL-Parametern
   const filteredFahndungen = useMemo(() => {
-    console.log(
-      "[HomeContent] Filter-Logik: fahndungen.length =",
-      fahndungen.length,
-      "fahndungen =",
-      fahndungen
-    );
     if (!fahndungen || !fahndungen.length) {
-      console.log("[HomeContent] Keine Fahndungen zum Filtern vorhanden");
       return [];
     }
 
@@ -81,12 +74,10 @@ export default function HomeContent() {
         try {
           const segments = JSON.parse(savedSegments) as string[];
           selectedSegments = new Set(segments);
-          console.log(
-            "[HomeContent] Geladene Segmente aus localStorage:",
-            Array.from(selectedSegments)
-          );
         } catch (e) {
-          console.error("Fehler beim Laden der Segmente:", e);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Fehler beim Laden der Segmente:", e);
+          }
         }
       }
     }
@@ -218,15 +209,9 @@ export default function HomeContent() {
     }
   }, [filteredFahndungen, itemsPerPage, currentPage]);
 
-  // Debug: Log gefilterte Fahndungen
+  // Debug: Log gefilterte Fahndungen (nur in Development)
   useEffect(() => {
-    if (mounted) {
-      console.log(
-        "[HomeContent] Gefilterte Fahndungen:",
-        filteredFahndungen.length,
-        "von",
-        fahndungen.length
-      );
+    if (mounted && process.env.NODE_ENV === "development") {
       if (fahndungen.length > 0 && filteredFahndungen.length === 0) {
         console.warn(
           "[HomeContent] ⚠️ WARNUNG: Alle Fahndungen wurden herausgefiltert!"
@@ -235,12 +220,6 @@ export default function HomeContent() {
           typeof window !== "undefined"
             ? localStorage.getItem("fahndung-selected-segments")
             : null;
-        console.log("[HomeContent] Filter-Parameter:", {
-          searchTerm,
-          fahndungsart,
-          dienststelle,
-          selectedSegments: savedSegments,
-        });
         if (savedSegments) {
           console.warn(
             "[HomeContent] 💡 TIPP: localStorage enthält Segmente, die möglicherweise alle Fahndungen herausfiltern. Versuchen Sie: localStorage.removeItem('fahndung-selected-segments')"

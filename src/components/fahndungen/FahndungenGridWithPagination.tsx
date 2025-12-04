@@ -53,7 +53,8 @@ export function FahndungenGridWithPagination({
       }, 0);
       return () => clearTimeout(timeoutId);
     }
-  }, [fahndungen.length, itemsPerPage, currentPage, setCurrentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fahndungen.length, itemsPerPage, currentPage]);
 
   // Grid-Klassen basierend auf viewMode
   const getGridClasses = () => {
@@ -83,7 +84,7 @@ export function FahndungenGridWithPagination({
       <div
         className={`grid ${getGridClasses()} ${getGapClasses()} w-full pt-1 pb-8`}
       >
-        {paginatedFahndungen.map((fahndung) => (
+        {paginatedFahndungen.map((fahndung, index) => (
           <FlipCard
             key={fahndung.id}
             fahndung={fahndung}
@@ -94,6 +95,7 @@ export function FahndungenGridWithPagination({
                   ? "grid-3"
                   : "default"
             }
+            isFirstInGrid={index === 0 && currentPage === 1}
             onDetailsClick={() => {
               if (onFahndungClick) {
                 onFahndungClick(fahndung);

@@ -115,7 +115,6 @@ export const typo3Client = {
   }): Promise<NavigationResponse> {
     // Production-ready navigation endpoint using typeNum
     const url = buildApiUrl(API_ENDPOINTS.navigation);
-    console.log("[typo3Client] Fetching navigation from:", url);
 
     const data = await t3Fetch<unknown>(url, {
       cache: options?.cache ?? "force-cache",
@@ -160,9 +159,6 @@ export const typo3Client = {
     const useMockData = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
     if (useMockData) {
-      console.log(
-        "[typo3Client] Using mock data (NEXT_PUBLIC_USE_MOCK_DATA=true)"
-      );
       return {
         meta: {
           total: mockFahndungen.length,
@@ -175,7 +171,6 @@ export const typo3Client = {
     }
 
     const url = buildApiUrl(API_ENDPOINTS.fahndungen, paramObj);
-    console.log("[typo3Client] Fetching Fahndungen from:", url);
 
     try {
       const data = await t3Fetch<FahndungenApiResponse>(url, {
@@ -193,10 +188,12 @@ export const typo3Client = {
 
       // Ensure items is an array
       if (!Array.isArray(data.items)) {
-        console.warn(
-          "[typo3Client] items is not an array, converting:",
-          data.items
-        );
+        if (process.env.NODE_ENV === "development") {
+          console.warn(
+            "[typo3Client] items is not an array, converting:",
+            data.items
+          );
+        }
         data.items = [];
       }
 
@@ -225,9 +222,6 @@ export const typo3Client = {
 
       // Wenn keine Daten von der API kommen, Mock-Daten verwenden
       if (normalizedData.items.length === 0) {
-        console.log(
-          "[typo3Client] No data from API, using mock data as fallback"
-        );
         return {
           meta: {
             total: mockFahndungen.length,
@@ -241,10 +235,11 @@ export const typo3Client = {
 
       return normalizedData;
     } catch (error) {
-      console.error("[typo3Client] Error fetching Fahndungen:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[typo3Client] Error fetching Fahndungen:", error);
+      }
 
       // Bei Fehler immer Mock-Daten zurückgeben
-      console.log("[typo3Client] Using mock data due to error");
       return {
         meta: {
           total: mockFahndungen.length,
@@ -302,7 +297,6 @@ export const typo3Client = {
   ): Promise<Typo3PageResponse> {
     // Use headless page API by constructing path directly
     const path = `/fahndungen/${encodeURIComponent(idOrSlug)}`;
-    console.log("[typo3Client] Fetching Fahndung detail from path:", path);
 
     try {
       const data = await t3Fetch<{
@@ -345,7 +339,9 @@ export const typo3Client = {
 
       return normalizedData;
     } catch (error) {
-      console.error("[typo3Client] Error fetching Fahndung detail:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[typo3Client] Error fetching Fahndung detail:", error);
+      }
       notFound();
     }
   },
@@ -369,7 +365,6 @@ export const typo3Client = {
     services: Record<string, string>;
   }> {
     const url = buildApiUrl(API_ENDPOINTS.health);
-    console.log("[typo3Client] Health check from:", url);
 
     const data = await t3Fetch<{
       status: string;

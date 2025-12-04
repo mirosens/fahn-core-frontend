@@ -101,9 +101,11 @@ export async function t3Fetch<TResponse = unknown>(
       ? crypto.randomUUID()
       : undefined);
 
-  // Debug logging
-  console.log("[t3Fetch] Requesting URL:", url);
-  console.log("[t3Fetch] Method:", method);
+  // Debug logging (nur in Development)
+  if (process.env.NODE_ENV === "development") {
+    console.log("[t3Fetch] Requesting URL:", url);
+    console.log("[t3Fetch] Method:", method);
+  }
 
   try {
     const fetchOptions: RequestInit = {
@@ -130,15 +132,19 @@ export async function t3Fetch<TResponse = unknown>(
 
     const response = await fetch(url, fetchOptions);
 
-    console.log("[t3Fetch] Response status:", response.status);
-    console.log(
-      "[t3Fetch] Response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
+    if (process.env.NODE_ENV === "development") {
+      console.log("[t3Fetch] Response status:", response.status);
+      console.log(
+        "[t3Fetch] Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+    }
 
     if (!response.ok) {
       const text = await safeReadText(response);
-      console.error("[t3Fetch] Error response:", text);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[t3Fetch] Error response:", text);
+      }
 
       throw new ApiError({
         message: `Request to TYPO3 failed with status ${response.status}`,

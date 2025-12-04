@@ -121,7 +121,12 @@ export function useFahndungen(
         } as FahndungItem;
       });
     } catch (err) {
-      console.error("[useFahndungen] Fehler beim Laden aus localStorage:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          "[useFahndungen] Fehler beim Laden aus localStorage:",
+          err
+        );
+      }
       return [];
     }
   };
@@ -146,18 +151,8 @@ export function useFahndungen(
     try {
       const response = await typo3Client.getFahndungen(searchParams);
 
-      console.log(
-        "[useFahndungen] Geladene Fahndungen:",
-        response.items.length,
-        response.items
-      );
-
       // Lade auch Fahndungen aus localStorage und kombiniere sie
       const localFahndungen = loadLocalStorageFahndungen();
-      console.log(
-        "[useFahndungen] Fahndungen aus localStorage:",
-        localFahndungen.length
-      );
 
       // Kombiniere Typo3-Fahndungen mit localStorage-Fahndungen
       // localStorage-Fahndungen haben Priorität (werden zuerst angezeigt)
@@ -165,7 +160,9 @@ export function useFahndungen(
 
       setFahndungen(allFahndungen);
     } catch (err) {
-      console.error("[useFahndungen] Fehler beim Laden der Fahndungen:", err);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[useFahndungen] Fehler beim Laden der Fahndungen:", err);
+      }
       setError("Die Fahndungen konnten nicht geladen werden.");
 
       // Bei Fehler: Lade nur localStorage-Fahndungen
@@ -179,10 +176,12 @@ export function useFahndungen(
           const { mockFahndungen } = await import("@/lib/mockFahndungen");
           setFahndungen(mockFahndungen);
         } catch (mockError) {
-          console.error(
-            "[useFahndungen] Fehler beim Laden der Mock-Daten:",
-            mockError
-          );
+          if (process.env.NODE_ENV === "development") {
+            console.error(
+              "[useFahndungen] Fehler beim Laden der Mock-Daten:",
+              mockError
+            );
+          }
           setFahndungen([]);
         }
       }

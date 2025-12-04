@@ -12,6 +12,7 @@ interface FlipCardProps {
   onDetailsClick: () => void;
   layoutMode?: "default" | "grid-4" | "grid-3";
   isCarousel?: boolean;
+  isFirstInGrid?: boolean;
 }
 
 export function FlipCard({
@@ -19,6 +20,7 @@ export function FlipCard({
   onDetailsClick,
   layoutMode = "default",
   isCarousel = false,
+  isFirstInGrid = false,
 }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -191,6 +193,8 @@ export function FlipCard({
                   fill
                   className="object-cover object-center"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  loading={isCarousel || isFirstInGrid ? "eager" : "lazy"}
+                  priority={isCarousel || isFirstInGrid}
                 />
               </div>
             ) : (
