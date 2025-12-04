@@ -134,7 +134,7 @@ export function FlipCard({
         {/* FRONT SIDE */}
         <div
           className={cn(
-            "absolute inset-0 flex h-full w-full flex-col overflow-hidden rounded-[10px] shadow-xl",
+            "group absolute inset-0 flex h-full w-full flex-col overflow-hidden rounded-[10px] shadow-xl",
             layoutMode === "grid-4" || layoutMode === "grid-3"
               ? "bg-transparent border border-border/20"
               : "bg-white dark:bg-gray-800"
@@ -322,11 +322,10 @@ export function FlipCard({
                   style={{
                     opacity: isFlipped ? 0 : 1,
                     visibility: isFlipped ? "hidden" : "visible",
-                    transition: "opacity 0.3s ease, visibility 0.3s ease",
                   }}
                 >
                   <button
-                    className="flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95 min-h-[40px] whitespace-nowrap"
+                    className="flex items-center justify-center gap-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-transparent px-4 py-2.5 text-xs font-semibold text-foreground transition-all duration-300 group-hover:bg-black group-hover:text-white group-hover:border-black group-hover:shadow-lg hover:bg-black hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95 min-h-[40px] whitespace-nowrap opacity-20 group-hover:opacity-100"
                     onClick={(e) => {
                       e.stopPropagation();
                       flipCard();
