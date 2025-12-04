@@ -326,10 +326,10 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
           className={`w-full ${isInline ? "p-0" : "rounded-lg p-2.5 mx-auto px-4 sm:px-6 lg:px-8"}`}
           style={isInline ? {} : { maxWidth: "1273px" }}
         >
-          {/* Kompakte Filter-Zeile mit 3 gleich breiten Spalten */}
-          <div className="flex items-center justify-center gap-2 h-9 px-2 overflow-visible">
+          {/* Kompakte Filter-Zeile mit 3 gleich breiten Spalten - zentriert */}
+          <div className="flex items-center justify-center gap-1 h-9 px-1 overflow-visible">
             {/* Fahndungssuche - Suchfeld mit Zeit/Datum-Icon */}
-            <div className="relative flex-1 min-w-[200px] max-w-[300px]">
+            <div className="relative w-[180px]">
               <label htmlFor="compact-filter-search" className="sr-only">
                 Fahndungssuche
               </label>
@@ -351,10 +351,10 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
                   isTypingRef.current = false;
                 }}
                 placeholder="Fahndungssuche..."
-                className="h-9 pl-7 pr-9 text-sm w-full rounded-md border border-border bg-background text-foreground placeholder:text-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 [&::-webkit-search-cancel-button]:hidden [&::-ms-clear]:hidden"
+                className="h-9 pl-7 pr-6 text-sm w-full rounded-md border border-border bg-background text-foreground placeholder:text-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 [&::-webkit-search-cancel-button]:hidden [&::-ms-clear]:hidden"
               />
               {/* Zeit/Datum-Icon im Suchfeld rechts */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10">
+              <div className="absolute right-1 top-1/2 -translate-y-1/2 z-10">
                 <DateRangeDropdown
                   title="Datum/Zeitraum"
                   timeRange={filters.timeRange}
@@ -373,7 +373,7 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
               {filters.searchTerm && (
                 <button
                   onClick={() => updateFilter("searchTerm", "")}
-                  className="absolute right-8 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground z-10"
+                  className="absolute right-6 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground z-10"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -381,7 +381,7 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
             </div>
 
             {/* Fahndungsart - Dropdown */}
-            <div className="flex-1 min-w-[200px] max-w-[300px] overflow-visible">
+            <div className="w-[180px] overflow-visible">
               <MultiSelectDropdown
                 title="Fahndungsart"
                 options={FAHNDUNGSTYPEN}
@@ -392,7 +392,7 @@ export const CompactFilter: React.FC<CompactFilterProps> = ({
             </div>
 
             {/* Dienststellen - ersetzt PP-Karte */}
-            <div className="flex-1 min-w-[200px] max-w-[300px] overflow-visible">
+            <div className="w-[180px] overflow-visible">
               <PolizeipraesidienTile
                 lka={filters.lka}
                 bka={filters.bka}
