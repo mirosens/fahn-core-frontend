@@ -6,8 +6,6 @@ import { X } from "lucide-react";
 import { SquareMenuIcon } from "../../ui/SquareMenuIcon";
 import { ModernMobileMenu } from "../MobileMenu";
 import { useAuth } from "@/hooks/useAuth";
-// TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
-// import { getBrowserClient } from "@/lib/supabase/supabase-browser";
 
 interface MobileHeaderProps {
   onFilterToggle?: () => void;
@@ -23,7 +21,7 @@ export default function MobileHeader({ onFilterClose }: MobileHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { session } = useAuth();
+  const { user } = useAuth();
 
   // Click outside handler - schließt Mobile-Menü wenn außerhalb geklickt wird
   useEffect(() => {
@@ -66,22 +64,16 @@ export default function MobileHeader({ onFilterClose }: MobileHeaderProps) {
     }
   };
 
-  // VEREINFACHTE LOGOUT-FUNKTION
+  // Logout-Funktion mit useAuth Hook
+  const { logout } = useAuth();
+
   const handleLogout = async () => {
     try {
-      console.log("🚪 Starte Logout...");
-      // TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
-      // const supabase = getBrowserClient();
-      // await supabase.auth.signOut();
-
-      // TODO Phase C3: Ersetzen mit useAuth() Hook
-      console.log("Logout - wird in Phase C3 implementiert");
-
-      // Sofortige Weiterleitung zur Login-Seite
-      window.location.href = "/login";
+      await logout();
+      // Redirect wird im useAuth Hook durchgeführt
     } catch (err) {
       console.error("❌ Logout-Fehler:", err);
-      // Trotzdem zur Login-Seite weiterleiten
+      // Fallback: Trotzdem zur Login-Seite weiterleiten
       window.location.href = "/login";
     }
   };
@@ -108,7 +100,7 @@ export default function MobileHeader({ onFilterClose }: MobileHeaderProps) {
       <ModernMobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
-        session={session}
+        session={user ? { user } : null}
         onLogout={handleLogout}
         onFilterClose={onFilterClose}
       />

@@ -1,26 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn, Mail, Lock } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 // Dynamisches Rendering: keine Caching, Formulare sind dynamisch
 export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  // Demo-Admin-Daten automatisch vorausfüllen
-  const [email, setEmail] = useState("admin@ptls.de");
+  const { login, loading: authLoading, error: authError } = useAuth();
+  // Demo-Admin-Daten automatisch vorausfüllen (Typo3-Daten als Standard)
+  const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("admin123");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const redirectUrl = searchParams.get("redirect") || "/dashboard";
+  // Demo-Daten erneut ausfüllen
+  const fillDemoData1 = () => {
+    // Typo3-Daten (erste Option)
+    setUsername("admin");
+    setPassword("admin123");
+  };
 
-  // Demo-Daten erneut ausfüllen (falls geändert)
-  const fillDemoData = () => {
-    setEmail("admin@ptls.de");
+  const fillDemoData2 = () => {
+    // Alternative Demo-Daten (zweite Option)
+    setUsername("admin@ptls.de");
     setPassword("admin123");
   };
 
@@ -30,20 +34,19 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Provisorische Login-Logik (später durch Typo3 ersetzt)
-      // Simuliere Login-Prozess
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Setze auth_token Cookie (provisorisch)
-      document.cookie = `auth_token=provisional_token_${Date.now()}; path=/; max-age=86400`;
-
-      // Weiterleitung
-      router.push(redirectUrl);
-    } catch {
-      setError("Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.");
+      await login(username, password);
+      // Redirect wird im useAuth Hook durchgeführt
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.";
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
+
+  const displayError = error || authError;
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -55,40 +58,35 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="mb-2 text-3xl font-bold">Anmelden</h1>
-          <p className="text-muted-foreground">
-            Als Polizeibeamter anmelden
-            <br />
-            <span className="text-sm">
-              (Provisorische Anmeldung - später über Typo3)
-            </span>
-          </p>
+          <p className="text-muted-foreground">Als Polizeibeamter anmelden</p>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-lg">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {displayError && (
               <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+                {displayError}
               </div>
             )}
 
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="mb-2 block text-sm font-medium text-foreground"
               >
-                E-Mail-Adresse
+                Benutzername
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="w-full rounded-lg border border-border bg-background pl-10 pr-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="ihre.email@polizei-bw.de"
+                  disabled={isLoading || authLoading}
+                  className="w-full rounded-lg border border-border bg-background pl-10 pr-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                  placeholder="Benutzername oder E-Mail"
                 />
               </div>
             </div>
@@ -108,7 +106,8 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full rounded-lg border border-border bg-background pl-10 pr-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  disabled={isLoading || authLoading}
+                  className="w-full rounded-lg border border-border bg-background pl-10 pr-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
                   placeholder="••••••••"
                 />
               </div>
@@ -116,42 +115,63 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || authLoading}
               className="w-full rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50"
             >
-              {isLoading ? "Wird angemeldet..." : "Anmelden"}
+              {isLoading || authLoading ? "Wird angemeldet..." : "Anmelden"}
             </button>
 
-            {/* Demo-Daten Button */}
+            {/* Demo-Daten Buttons */}
             {process.env.NODE_ENV === "development" && (
-              <div className="text-center">
+              <div className="flex gap-2 justify-center">
                 <button
                   type="button"
-                  onClick={fillDemoData}
+                  onClick={fillDemoData1}
                   className="text-sm text-primary hover:text-primary/80 underline"
                 >
-                  Demo-Daten verwenden
+                  Typo3-Daten (admin)
+                </button>
+                <span className="text-sm text-muted-foreground">|</span>
+                <button
+                  type="button"
+                  onClick={fillDemoData2}
+                  className="text-sm text-primary hover:text-primary/80 underline"
+                >
+                  Alternative (admin@ptls.de)
                 </button>
               </div>
             )}
           </form>
 
-          <div className="mt-6 rounded-lg border border-border/50 bg-muted/30 p-4">
-            <p className="text-xs text-muted-foreground mb-2">
-              <strong>Hinweis:</strong> Dies ist eine provisorische
-              Anmeldungsseite. Die finale Implementierung erfolgt über Typo3.
-            </p>
-            <div className="mt-2 rounded bg-primary/10 p-2">
-              <p className="text-xs font-medium text-foreground mb-1">
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-6 rounded-lg border border-border/50 bg-muted/30 p-4">
+              <p className="text-xs font-medium text-foreground mb-2">
                 Demo-Zugangsdaten (automatisch ausgefüllt):
               </p>
-              <p className="text-xs text-muted-foreground">
-                E-Mail: admin@ptls.de
-                <br />
-                Passwort: admin123
-              </p>
+              <div className="space-y-2">
+                <div className="rounded bg-primary/10 p-2">
+                  <p className="text-xs font-medium text-foreground mb-1">
+                    1. Typo3-Daten (Standard):
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Benutzername: admin
+                    <br />
+                    Passwort: admin123
+                  </p>
+                </div>
+                <div className="rounded bg-primary/10 p-2">
+                  <p className="text-xs font-medium text-foreground mb-1">
+                    2. Alternative Demo-Daten:
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Benutzername: admin@ptls.de
+                    <br />
+                    Passwort: admin123
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

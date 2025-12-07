@@ -1,25 +1,36 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback, useMemo, type TouchEvent } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+  type TouchEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   Building,
   LogIn,
   LogOut,
-  User,
+  User as UserIcon,
 } from "lucide-react";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 import { HeaderSearch } from "@/components/ui/header-search";
-import type { Session } from "@/lib/auth";
-import { navigationData, type NavItem, type NavSection } from "@/constants/navigationData";
+import {
+  navigationData,
+  type NavItem,
+  type NavSection,
+} from "@/constants/navigationData";
 import { useAuth } from "@/hooks/useAuth";
+import type { User } from "@/lib/types";
 
 // Types
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  session?: Session | null;
+  session?: { user: User } | null;
   onLogout?: () => void;
   onFilterClose?: () => void;
 }
@@ -51,7 +62,7 @@ const useSearch = (items: NavItem[], query: string): NavItem[] => {
 };
 
 // Custom hook for touch gestures
-const useSwipeToClose = (onClose: () => void, _isOpen: boolean) => {
+const useSwipeToClose = (onClose: () => void) => {
   const [startX, setStartX] = useState<number | null>(null);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
@@ -72,13 +83,19 @@ const useSwipeToClose = (onClose: () => void, _isOpen: boolean) => {
 
       void setStartX(null);
     },
-    [startX, onClose],
+    [startX, onClose]
   );
 
   return { handleTouchStart, handleTouchEnd };
 };
 
-export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterClose }: MobileMenuProps) {
+export function ModernMobileMenu({
+  isOpen,
+  onClose,
+  session,
+  onLogout,
+  onFilterClose,
+}: MobileMenuProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -86,34 +103,35 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
   const searchInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
   // Navigation Sections - identisch mit Desktop-Header
-  const navSections = useMemo<NavSection[]>(
-    () => ["Service"],
-    []
-  );
+  const navSections = useMemo<NavSection[]>(() => ["Service"], []);
 
   // Flatten all menu items for search
   const allMenuItems = useMemo(
-    () => navSections.flatMap((section) => {
-      const items = navigationData[section];
-      
-      // Filtere Items basierend auf Authentifizierung (identisch mit Desktop-Header)
-      if (section === "Service") {
-        if (!isAuthenticated) {
-          return items.filter((item) => !item.requiresAuth && !item.isAuthSection);
+    () =>
+      navSections.flatMap((section) => {
+        const items = navigationData[section];
+
+        // Filtere Items basierend auf Authentifizierung (identisch mit Desktop-Header)
+        if (section === "Service") {
+          if (!isAuthenticated) {
+            return items.filter(
+              (item) => !item.requiresAuth && !item.isAuthSection
+            );
+          }
+          return items.filter((item) => !item.authOnly && !item.isAuthSection);
         }
-        return items.filter((item) => !item.authOnly && !item.isAuthSection);
-      }
-      
-      return items;
-    }),
-    [isAuthenticated, navSections],
+
+        return items;
+      }),
+    [isAuthenticated, navSections]
   );
 
   const searchResults = useSearch(allMenuItems, searchQuery);
-  const { handleTouchStart, handleTouchEnd } = useSwipeToClose(onClose, isOpen);
+  const { handleTouchStart, handleTouchEnd } = useSwipeToClose(onClose);
 
   // Focus management
   useEffect(() => {
@@ -163,7 +181,16 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
           return;
       }
     },
-    [isOpen, searchQuery, searchResults, allMenuItems, focusedIndex, onClose, router, onFilterClose],
+    [
+      isOpen,
+      searchQuery,
+      searchResults,
+      allMenuItems,
+      focusedIndex,
+      onClose,
+      router,
+      onFilterClose,
+    ]
   );
 
   useEffect(() => {
@@ -194,10 +221,10 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
         e.preventDefault();
         e.stopPropagation();
       }
-      
+
       // Filterleiste schließen, wenn vorhanden
       onFilterClose?.();
-      
+
       if (external) {
         window.open(href, "_blank", "noopener,noreferrer");
         onClose();
@@ -212,15 +239,18 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
         }, 100);
       }
     },
-    [router, onClose, onFilterClose],
+    [router, onClose, onFilterClose]
   );
 
   // Reset states when menu closes
   useEffect(() => {
     if (!isOpen) {
-      void setSearchQuery("");
-      void setActiveCategory(null);
-      void setFocusedIndex(-1);
+      // Use requestAnimationFrame to avoid setState in effect
+      requestAnimationFrame(() => {
+        setSearchQuery("");
+        setActiveCategory(null);
+        setFocusedIndex(-1);
+      });
     }
   }, [isOpen]);
 
@@ -230,7 +260,9 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
 
     if (section === "Service") {
       if (!isAuthenticated) {
-        return items.filter((item) => !item.requiresAuth && !item.isAuthSection);
+        return items.filter(
+          (item) => !item.requiresAuth && !item.isAuthSection
+        );
       }
       return items.filter((item) => !item.authOnly && !item.isAuthSection);
     }
@@ -306,7 +338,9 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            onClick={(e: React.MouseEvent) => handleItemClick(item.href, item.external, e)}
+                            onClick={(e: React.MouseEvent) =>
+                              handleItemClick(item.href, item.external, e)
+                            }
                             className={`w-full rounded-lg p-3 text-left transition-all hover:bg-gray-100 dark:hover:bg-gray-800 ${
                               focusedIndex === index
                                 ? "bg-blue-50 ring-2 ring-blue-500 dark:bg-blue-900/20"
@@ -356,7 +390,9 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                         <motion.button
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          onClick={(e: React.MouseEvent) => handleItemClick("/leichte-sprache", false, e)}
+                          onClick={(e: React.MouseEvent) =>
+                            handleItemClick("/leichte-sprache", false, e)
+                          }
                           className="w-full rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
                         >
                           <div className="font-medium text-gray-900 dark:text-white">
@@ -367,7 +403,9 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.05 }}
-                          onClick={(e: React.MouseEvent) => handleItemClick("/gebaerdensprache", false, e)}
+                          onClick={(e: React.MouseEvent) =>
+                            handleItemClick("/gebaerdensprache", false, e)
+                          }
                           className="w-full rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
                         >
                           <div className="font-medium text-gray-900 dark:text-white">
@@ -380,7 +418,7 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                     {/* Menu Categories - identisch mit Desktop-Header */}
                     {navSections.map((section, categoryIndex) => {
                       const filteredItems = getFilteredNavigationItems(section);
-                      
+
                       // Überspringe Service-Sektion wenn keine Items verfügbar (außer Auth-Items)
                       if (
                         section === "Service" &&
@@ -400,7 +438,9 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                         >
                           <button
                             onClick={() =>
-                              setActiveCategory(activeCategory === section ? null : section)
+                              setActiveCategory(
+                                activeCategory === section ? null : section
+                              )
                             }
                             className="mb-3 flex w-full items-center gap-2 text-left"
                           >
@@ -434,19 +474,27 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                                       initial={{ opacity: 0, x: 20 }}
                                       animate={{ opacity: 1, x: 0 }}
                                       transition={{ delay: itemIndex * 0.05 }}
-                                      onClick={(e: React.MouseEvent) => handleItemClick(item.href, item.external, e)}
+                                      onClick={(e: React.MouseEvent) =>
+                                        handleItemClick(
+                                          item.href,
+                                          item.external,
+                                          e
+                                        )
+                                      }
                                       className={`w-full rounded-lg p-3 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                                        item.urgent 
-                                          ? "bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800" 
+                                        item.urgent
+                                          ? "bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800"
                                           : "bg-gray-50 dark:bg-gray-800"
                                       }`}
                                     >
                                       <div className="flex items-center gap-3">
-                                        <item.icon className={`h-5 w-5 flex-shrink-0 ${
-                                          item.urgent 
-                                            ? "text-red-600 dark:text-red-400" 
-                                            : "text-gray-600 dark:text-gray-400"
-                                        }`} />
+                                        <item.icon
+                                          className={`h-5 w-5 flex-shrink-0 ${
+                                            item.urgent
+                                              ? "text-red-600 dark:text-red-400"
+                                              : "text-gray-600 dark:text-gray-400"
+                                          }`}
+                                        />
                                         <div className="min-w-0 flex-1">
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium text-gray-900 dark:text-white">
@@ -478,7 +526,9 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                                       {/* Auth-Header */}
                                       <div className="mb-2 px-3 py-1">
                                         <div className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                                          {isAuthenticated ? "Benutzer" : "Anmeldung"}
+                                          {isAuthenticated
+                                            ? "Benutzer"
+                                            : "Anmeldung"}
                                         </div>
                                       </div>
 
@@ -488,10 +538,12 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                                         <div className="space-y-2">
                                           <div className="rounded-lg bg-blue-50 px-3 py-2 dark:bg-blue-900/20">
                                             <div className="flex items-center gap-2">
-                                              <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                              <UserIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                               <div className="flex-1">
                                                 <div className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                                  {session?.user?.email?.split("@")[0] ?? "Benutzer"}
+                                                  {session?.user?.name ||
+                                                    session?.user?.username ||
+                                                    "Benutzer"}
                                                 </div>
                                                 <div className="text-xs text-blue-700 dark:text-blue-300">
                                                   Angemeldet
@@ -522,31 +574,41 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                                         </div>
                                       ) : (
                                         // Nicht angemeldet - zeige Anmelden/Registrieren
-                                        getAuthItems().map((item, itemIndex) => (
-                                          <motion.button
-                                            key={item.href}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: itemIndex * 0.05 }}
-                                            onClick={(e: React.MouseEvent) => handleItemClick(item.href, item.external, e)}
-                                            className="w-full rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
-                                          >
-                                            <div className="flex items-center gap-3">
-                                              <item.icon className="h-5 w-5 flex-shrink-0 text-gray-600 dark:text-gray-400" />
-                                              <div className="min-w-0 flex-1">
-                                                <div className="font-medium text-gray-900 dark:text-white">
-                                                  {item.label}
-                                                </div>
-                                                {item.description && (
-                                                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                    {item.description}
+                                        getAuthItems().map(
+                                          (item, itemIndex) => (
+                                            <motion.button
+                                              key={item.href}
+                                              initial={{ opacity: 0, x: 20 }}
+                                              animate={{ opacity: 1, x: 0 }}
+                                              transition={{
+                                                delay: itemIndex * 0.05,
+                                              }}
+                                              onClick={(e: React.MouseEvent) =>
+                                                handleItemClick(
+                                                  item.href,
+                                                  item.external,
+                                                  e
+                                                )
+                                              }
+                                              className="w-full rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                            >
+                                              <div className="flex items-center gap-3">
+                                                <item.icon className="h-5 w-5 flex-shrink-0 text-gray-600 dark:text-gray-400" />
+                                                <div className="min-w-0 flex-1">
+                                                  <div className="font-medium text-gray-900 dark:text-white">
+                                                    {item.label}
                                                   </div>
-                                                )}
+                                                  {item.description && (
+                                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                      {item.description}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <ChevronRight className="h-4 w-4 text-gray-400" />
                                               </div>
-                                              <ChevronRight className="h-4 w-4 text-gray-400" />
-                                            </div>
-                                          </motion.button>
-                                        ))
+                                            </motion.button>
+                                          )
+                                        )
                                       )}
                                     </>
                                   )}
@@ -573,7 +635,10 @@ export function ModernMobileMenu({ isOpen, onClose, session, onLogout, onFilterC
                       }}
                       className="w-full text-left text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 cursor-pointer"
                     >
-                      Angemeldet als {session.user?.email}
+                      Angemeldet als{" "}
+                      {session.user?.name ||
+                        session.user?.username ||
+                        "Benutzer"}
                     </button>
                     <button
                       onClick={() => {

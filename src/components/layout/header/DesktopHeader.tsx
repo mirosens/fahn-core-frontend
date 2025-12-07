@@ -6,8 +6,6 @@ import { HeaderSearch } from "@/components/ui/header-search";
 import { VerticalThemeToggle } from "@/components/ui/VerticalThemeToggle";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-// TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
-// import { getBrowserClient } from "@/lib/supabase/supabase-browser";
 import {
   navigationData,
   type NavItem,
@@ -31,7 +29,8 @@ export default function DesktopHeader({ onFilterClose }: DesktopHeaderProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const { session, isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   useFilter(); // Filter-Context wird verwendet, aber nicht direkt benötigt
   const [, setPPSegments] = useState<string[]>([]);
   const [, setSelectedDistricts] = useState<string[]>([]);
@@ -205,22 +204,16 @@ export default function DesktopHeader({ onFilterClose }: DesktopHeaderProps) {
     return serviceItems.filter((item: NavItem) => item.isAuthSection === true);
   };
 
-  // VEREINFACHTE LOGOUT-FUNKTION
+  // Logout-Funktion mit useAuth Hook
+  const { logout } = useAuth();
+
   const handleLogout = async () => {
     try {
-      console.log("🚪 Starte Logout...");
-      // TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
-      // const supabase = getBrowserClient();
-      // await supabase.auth.signOut();
-
-      // TODO Phase C3: Ersetzen mit useAuth() Hook
-      console.log("Logout - wird in Phase C3 implementiert");
-
-      // Sofortige Weiterleitung zur Login-Seite
-      window.location.href = "/login";
+      await logout();
+      // Redirect wird im useAuth Hook durchgeführt
     } catch (err) {
       console.error("❌ Logout-Fehler:", err);
-      // Trotzdem zur Login-Seite weiterleiten
+      // Fallback: Trotzdem zur Login-Seite weiterleiten
       window.location.href = "/login";
     }
   };
@@ -422,7 +415,8 @@ export default function DesktopHeader({ onFilterClose }: DesktopHeaderProps) {
                                 <div className="flex items-center gap-2">
                                   <div className="flex-1">
                                     <div className="text-sm font-medium text-foreground">
-                                      {session?.user?.email?.split("@")[0] ??
+                                      {user?.name ||
+                                        user?.username ||
                                         "Benutzer"}
                                     </div>
                                     <div className="text-xs font-medium text-foreground/80">
