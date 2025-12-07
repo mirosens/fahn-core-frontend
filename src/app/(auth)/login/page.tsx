@@ -9,22 +9,22 @@ export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
   const { login, loading: authLoading, error: authError } = useAuth();
-  // Demo-Admin-Daten automatisch vorausfüllen (Typo3-Daten als Standard)
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin123");
+  // Demo-Admin-Daten automatisch vorausfüllen (Test-Polizist als Standard)
+  const [username, setUsername] = useState("testpolizist");
+  const [password, setPassword] = useState("Polizei2024!");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   // Demo-Daten erneut ausfüllen
   const fillDemoData1 = () => {
-    // Typo3-Daten (erste Option)
-    setUsername("admin");
-    setPassword("admin123");
+    // Test-Polizist (Standard)
+    setUsername("testpolizist");
+    setPassword("Polizei2024!");
   };
 
   const fillDemoData2 = () => {
-    // Alternative Demo-Daten (zweite Option)
-    setUsername("admin@ptls.de");
+    // Alternative Demo-Daten (Admin)
+    setUsername("admin");
     setPassword("admin123");
   };
 
@@ -129,7 +129,7 @@ export default function LoginPage() {
                   onClick={fillDemoData1}
                   className="text-sm text-primary hover:text-primary/80 underline"
                 >
-                  Typo3-Daten (admin)
+                  Test-Polizist
                 </button>
                 <span className="text-sm text-muted-foreground">|</span>
                 <button
@@ -137,7 +137,7 @@ export default function LoginPage() {
                   onClick={fillDemoData2}
                   className="text-sm text-primary hover:text-primary/80 underline"
                 >
-                  Alternative (admin@ptls.de)
+                  Admin (admin)
                 </button>
               </div>
             )}
@@ -151,20 +151,20 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="rounded bg-primary/10 p-2">
                   <p className="text-xs font-medium text-foreground mb-1">
-                    1. Typo3-Daten (Standard):
+                    1. Test-Polizist (Standard):
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Benutzername: admin
+                    Benutzername: testpolizist
                     <br />
-                    Passwort: admin123
+                    Passwort: Polizei2024!
                   </p>
                 </div>
                 <div className="rounded bg-primary/10 p-2">
                   <p className="text-xs font-medium text-foreground mb-1">
-                    2. Alternative Demo-Daten:
+                    2. Admin (Alternative):
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Benutzername: admin@ptls.de
+                    Benutzername: admin
                     <br />
                     Passwort: admin123
                   </p>
