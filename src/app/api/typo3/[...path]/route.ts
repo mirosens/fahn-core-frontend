@@ -6,9 +6,12 @@ import { env } from "@/env";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
+    // Await the params since they're now a Promise in Next.js 16
+    const resolvedParams = await params;
+
     // Baue die TYPO3-URL zusammen
     const baseUrl = env.T3_API_BASE_URL ?? env.TYPO3_BASE_URL;
     if (!baseUrl) {
@@ -23,7 +26,7 @@ export async function GET(
 
     // Baue die Ziel-URL
     // Wenn path leer ist (z.B. /api/typo3?type=10000), verwende Root-Pfad
-    const pathParts = params.path ?? [];
+    const pathParts = resolvedParams.path ?? [];
     const path = pathParts.length > 0 ? pathParts.join("/") : "";
     const targetUrl = new URL(path || "/", baseUrl);
 

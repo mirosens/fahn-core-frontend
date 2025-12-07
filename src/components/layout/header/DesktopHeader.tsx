@@ -6,7 +6,8 @@ import { HeaderSearch } from "@/components/ui/header-search";
 import { VerticalThemeToggle } from "@/components/ui/VerticalThemeToggle";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { getBrowserClient } from "@/lib/supabase/supabase-browser";
+// TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
+// import { getBrowserClient } from "@/lib/supabase/supabase-browser";
 import {
   navigationData,
   type NavItem,
@@ -208,8 +209,12 @@ export default function DesktopHeader({ onFilterClose }: DesktopHeaderProps) {
   const handleLogout = async () => {
     try {
       console.log("🚪 Starte Logout...");
-      const supabase = getBrowserClient();
-      await supabase.auth.signOut();
+      // TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
+      // const supabase = getBrowserClient();
+      // await supabase.auth.signOut();
+
+      // TODO Phase C3: Ersetzen mit useAuth() Hook
+      console.log("Logout - wird in Phase C3 implementiert");
 
       // Sofortige Weiterleitung zur Login-Seite
       window.location.href = "/login";

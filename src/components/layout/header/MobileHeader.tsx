@@ -6,7 +6,8 @@ import { X } from "lucide-react";
 import { SquareMenuIcon } from "../../ui/SquareMenuIcon";
 import { ModernMobileMenu } from "../MobileMenu";
 import { useAuth } from "@/hooks/useAuth";
-import { getBrowserClient } from "@/lib/supabase/supabase-browser";
+// TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
+// import { getBrowserClient } from "@/lib/supabase/supabase-browser";
 
 interface MobileHeaderProps {
   onFilterToggle?: () => void;
@@ -69,8 +70,12 @@ export default function MobileHeader({ onFilterClose }: MobileHeaderProps) {
   const handleLogout = async () => {
     try {
       console.log("🚪 Starte Logout...");
-      const supabase = getBrowserClient();
-      await supabase.auth.signOut();
+      // TEMPORÄR AUSKOMMENTIERT - wird in Phase C3 ersetzt
+      // const supabase = getBrowserClient();
+      // await supabase.auth.signOut();
+
+      // TODO Phase C3: Ersetzen mit useAuth() Hook
+      console.log("Logout - wird in Phase C3 implementiert");
 
       // Sofortige Weiterleitung zur Login-Seite
       window.location.href = "/login";
