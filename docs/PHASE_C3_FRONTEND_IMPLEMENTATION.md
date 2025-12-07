@@ -748,3 +748,4 @@ Durch die Arbeiten in Phase C3 soll das Next.js‑Frontend vollständig an die n
 
 Nach Abschluss von Phase C3 kann das System intern getestet und anschließend in Phase C4 ausgerollt werden.
 
+
